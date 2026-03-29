@@ -1,5 +1,6 @@
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from 'react-icons/fa'
 import logoWhite from '../assets/logo-white.png'
+import useIsMobile from '../hooks/useIsMobile'
 
 const socialLinks = [
   { icon: FaFacebookF, href: 'https://www.facebook.com/profile.php?id=100080143248684', label: 'Facebook' },
@@ -9,18 +10,20 @@ const socialLinks = [
 ]
 
 const FooterV1 = ({ onNavigate }) => {
+  const isMobile = useIsMobile()
   const handleNav = (page) => { if (onNavigate) { onNavigate(page); window.scrollTo(0, 0) } }
 
   return (
-    <footer style={{ background: '#1a365d', padding: '60px 24px 30px', color: '#fff' }}>
+    <footer style={{ background: '#1a365d', padding: isMobile ? '40px 16px 20px' : '60px 24px 30px', color: '#fff' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{
-          display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between',
-          alignItems: 'flex-start', gap: '40px', paddingBottom: '40px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)'
+          display: 'flex', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'space-between',
+          alignItems: isMobile ? 'center' : 'flex-start', gap: isMobile ? '24px' : '40px', paddingBottom: isMobile ? '24px' : '40px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          flexDirection: isMobile ? 'column' : 'row', textAlign: isMobile ? 'center' : 'left'
         }}>
           {/* Logo + descripción */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
             <button onClick={() => handleNav('inicio')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <img src={logoWhite} alt="EVS Logistics" style={{ height: '50px', objectFit: 'contain' }} />
             </button>
@@ -30,7 +33,7 @@ const FooterV1 = ({ onNavigate }) => {
           </div>
 
           {/* Redes sociales */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
             <p style={{ fontSize: '14px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px', color: 'rgba(255,255,255,0.6)' }}>Síguenos</p>
             <div style={{ display: 'flex', gap: '10px' }}>
               {socialLinks.map(social => (
@@ -50,7 +53,7 @@ const FooterV1 = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', paddingTop: '24px', gap: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'space-between', alignItems: 'center', paddingTop: isMobile ? '16px' : '24px', gap: isMobile ? '8px' : '16px', flexDirection: isMobile ? 'column' : 'row' }}>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>&copy; {new Date().getFullYear()} EVS Logistics. Todos los derechos reservados.</p>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Intelligent Solutions</p>
         </div>

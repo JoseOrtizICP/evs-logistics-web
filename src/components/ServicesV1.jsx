@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaShip, FaPlane, FaFileContract, FaShoppingCart, FaTruck, FaBoxes, FaArrowLeft, FaCheckCircle } from 'react-icons/fa'
 import ScrollReveal from './ScrollReveal'
+import useIsMobile from '../hooks/useIsMobile'
 
 const services = [
   {
@@ -67,10 +68,10 @@ const ServiceCard = ({ service, index, onClick }) => {
       style={{
         position: 'relative', borderRadius: '16px', overflow: 'hidden',
         cursor: 'pointer', height: '320px',
-        background: '#fff', border: '1px solid rgba(0,0,0,0.06)',
+        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: hovered ? 'translateY(-8px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 20px 40px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.04)'
+        boxShadow: hovered ? '0 20px 40px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
       }}
     >
       {/* Background image reveal on hover */}
@@ -121,35 +122,35 @@ const ServiceCard = ({ service, index, onClick }) => {
         <div>
           <div style={{
             width: '48px', height: '48px', borderRadius: '12px',
-            background: hovered ? 'rgba(255,255,255,0.15)' : 'rgba(49,130,206,0.08)',
+            background: hovered ? 'rgba(255,255,255,0.15)' : 'rgba(99,179,237,0.1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: '16px', transition: 'all 0.3s'
           }}>
             <service.icon style={{
               fontSize: '22px',
-              color: hovered ? '#fff' : '#3182ce',
+              color: hovered ? '#fff' : '#63b3ed',
               transition: 'color 0.3s'
             }} />
           </div>
           <h3 style={{
             fontSize: '20px', fontWeight: 700, margin: '0 0 6px',
-            color: hovered ? '#fff' : '#1a202c', transition: 'color 0.3s'
+            color: '#fff', transition: 'color 0.3s'
           }}>{service.title}</h3>
           <span style={{
             fontSize: '12px', fontWeight: 600, letterSpacing: '1px',
-            color: hovered ? '#63b3ed' : '#3182ce', textTransform: 'uppercase',
+            color: '#63b3ed', textTransform: 'uppercase',
             transition: 'color 0.3s'
           }}>{service.tag}</span>
         </div>
         <div>
           <p style={{
             fontSize: '14px', lineHeight: 1.6, margin: '0 0 16px',
-            color: hovered ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.5)',
+            color: hovered ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
             transition: 'color 0.3s'
           }}>{service.description}</p>
           <span style={{
             fontSize: '13px', fontWeight: 600,
-            color: hovered ? '#63b3ed' : '#3182ce',
+            color: '#63b3ed',
             transition: 'color 0.3s'
           }}>Ver más →</span>
         </div>
@@ -158,22 +159,22 @@ const ServiceCard = ({ service, index, onClick }) => {
   )
 }
 
-const ServicePage = ({ service, onBack }) => (
+const ServicePage = ({ service, onBack, isMobile }) => (
   <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.4 }}
-    style={{ minHeight: '100vh', padding: '100px 24px 60px', background: '#f7fafc' }}>
+    style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent' }}>
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <button onClick={onBack} style={{
         display: 'flex', alignItems: 'center', gap: '8px', background: 'none',
-        border: 'none', color: '#3182ce', fontSize: '14px', fontWeight: 500,
-        cursor: 'pointer', marginBottom: '40px', padding: 0
+        border: 'none', color: '#63b3ed', fontSize: '14px', fontWeight: 500,
+        cursor: 'pointer', marginBottom: isMobile ? '24px' : '40px', padding: 0
       }}>
         <FaArrowLeft /> Volver a servicios
       </button>
 
       {/* Hero image */}
       <div style={{
-        width: '100%', height: '280px', borderRadius: '16px', overflow: 'hidden', marginBottom: '40px',
+        width: '100%', height: isMobile ? '180px' : '280px', borderRadius: '16px', overflow: 'hidden', marginBottom: isMobile ? '24px' : '40px',
         position: 'relative'
       }}>
         <div style={{
@@ -196,10 +197,10 @@ const ServicePage = ({ service, onBack }) => (
         </div>
       </div>
 
-      <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: '#1a202c', marginBottom: '16px' }}>
+      <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
         {service.title}
       </h1>
-      <p style={{ fontSize: '17px', color: '#4a5568', lineHeight: 1.8, marginBottom: '40px', maxWidth: '700px' }}>
+      <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: '40px', maxWidth: '700px' }}>
         {service.fullDescription}
       </p>
 
@@ -207,27 +208,27 @@ const ServicePage = ({ service, onBack }) => (
       <div style={{ display: 'flex', gap: '24px', marginBottom: '40px', flexWrap: 'wrap' }}>
         {service.stats.map((s, i) => (
           <div key={i} style={{
-            padding: '20px 30px', borderRadius: '12px', background: '#fff',
-            border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center', minWidth: '120px'
+            padding: isMobile ? '14px 18px' : '20px 30px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', minWidth: isMobile ? '80px' : '120px'
           }}>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#3182ce' }}>{s.value}</div>
-            <div style={{ fontSize: '12px', color: '#718096', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>{s.label}</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#63b3ed' }}>{s.value}</div>
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Features */}
-      <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#718096', marginBottom: '20px' }}>
+      <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
         Capacidades
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
         {service.features.map((f, i) => (
           <div key={i} style={{
             display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px',
-            borderRadius: '10px', background: '#fff', border: '1px solid rgba(0,0,0,0.06)'
+            borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
           }}>
             <FaCheckCircle style={{ color: '#48bb78', fontSize: '16px', flexShrink: 0 }} />
-            <span style={{ fontSize: '14px', color: '#2d3748', fontWeight: 500 }}>{f}</span>
+            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{f}</span>
           </div>
         ))}
       </div>
@@ -236,32 +237,33 @@ const ServicePage = ({ service, onBack }) => (
 )
 
 const ServicesV1 = () => {
+  const isMobile = useIsMobile()
   const [selectedService, setSelectedService] = useState(null)
 
   if (selectedService !== null) {
     return (
       <AnimatePresence mode="wait">
-        <ServicePage key={selectedService} service={services[selectedService]} onBack={() => setSelectedService(null)} />
+        <ServicePage key={selectedService} service={services[selectedService]} onBack={() => setSelectedService(null)} isMobile={isMobile} />
       </AnimatePresence>
     )
   }
 
   return (
-    <section style={{ minHeight: '100vh', padding: '100px 24px 60px', background: '#f7fafc' }}>
+    <section style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <ScrollReveal>
-          <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#3182ce', marginBottom: '12px' }}>Servicios</p>
-          <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#1a202c', marginBottom: '16px' }}>
-            Soluciones <span style={{ color: '#3182ce' }}>Completas</span> de Logística
+          <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#63b3ed', marginBottom: '12px' }}>Servicios</p>
+          <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
+            Soluciones <span style={{ color: '#63b3ed' }}>Completas</span> de Logística
           </h2>
-          <p style={{ textAlign: 'center', fontSize: '16px', color: '#718096', maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
+          <p style={{ textAlign: 'center', fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
             Ofrecemos una gama integral de servicios diseñados para simplificar y optimizar tus operaciones logísticas.
           </p>
         </ScrollReveal>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))',
           gap: '24px'
         }}>
           {services.map((service, i) => (

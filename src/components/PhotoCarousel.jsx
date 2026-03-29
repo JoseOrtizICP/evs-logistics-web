@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import ScrollReveal from './ScrollReveal'
+import useIsMobile from '../hooks/useIsMobile'
 
 const photos = [
   { src: '/fotos/bodega-pallets.jpg', caption: 'Bodega y almacenaje de pallets' },
@@ -14,6 +15,7 @@ const photos = [
 ]
 
 const PhotoCarousel = () => {
+  const isMobile = useIsMobile()
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {
@@ -26,23 +28,23 @@ const PhotoCarousel = () => {
 
   const btnStyle = {
     position: 'absolute', top: '50%', transform: 'translateY(-50%)',
-    width: '48px', height: '48px', borderRadius: '50%',
+    width: isMobile ? '36px' : '48px', height: isMobile ? '36px' : '48px', borderRadius: '50%',
     background: 'rgba(255,255,255,0.9)', border: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    cursor: 'pointer', zIndex: 5, color: '#1a365d', fontSize: '18px',
+    cursor: 'pointer', zIndex: 5, color: '#1a365d', fontSize: isMobile ? '14px' : '18px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)', transition: 'all 0.2s'
   }
 
   return (
-    <section style={{ padding: '100px 24px 60px', background: '#f7fafc', minHeight: '100vh' }}>
+    <section style={{ padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <ScrollReveal>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: '#3182ce', display: 'block', marginBottom: '12px' }}>GALERÍA</span>
-            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: '#1a365d', lineHeight: 1.15 }}>
-              Nuestro <span style={{ color: '#3182ce' }}>Trabajo</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: '#63b3ed', display: 'block', marginBottom: '12px' }}>GALERÍA</span>
+            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.15 }}>
+              Nuestro <span style={{ color: '#63b3ed' }}>Trabajo</span>
             </h2>
-            <p style={{ fontSize: '16px', color: 'rgba(0,0,0,0.5)', maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
               Conoce de cerca nuestras operaciones logísticas.
             </p>
           </div>
@@ -69,18 +71,18 @@ const PhotoCarousel = () => {
           </AnimatePresence>
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
-            padding: '50px 24px 20px',
+            padding: isMobile ? '40px 16px 14px' : '50px 24px 20px',
             background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', zIndex: 4
           }}>
-            <p style={{ color: '#fff', fontSize: '17px', fontWeight: 600 }}>{photos[current].caption}</p>
+            <p style={{ color: '#fff', fontSize: isMobile ? '14px' : '17px', fontWeight: 600 }}>{photos[current].caption}</p>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', marginTop: '4px' }}>{current + 1} / {photos.length}</p>
           </div>
-          <button onClick={prev} style={{ ...btnStyle, left: '16px' }}
+          <button onClick={prev} style={{ ...btnStyle, left: isMobile ? '8px' : '16px' }}
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}>
             <FaChevronLeft />
           </button>
-          <button onClick={next} style={{ ...btnStyle, right: '16px' }}
+          <button onClick={next} style={{ ...btnStyle, right: isMobile ? '8px' : '16px' }}
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}>
             <FaChevronRight />
@@ -92,7 +94,7 @@ const PhotoCarousel = () => {
           {photos.map((photo, i) => (
             <button key={i} onClick={() => setCurrent(i)}
               style={{
-                width: '80px', height: '56px', borderRadius: '8px', overflow: 'hidden',
+                width: isMobile ? '56px' : '80px', height: isMobile ? '40px' : '56px', borderRadius: isMobile ? '6px' : '8px', overflow: 'hidden',
                 border: current === i ? '2px solid #3182ce' : '2px solid transparent',
                 cursor: 'pointer', padding: 0, opacity: current === i ? 1 : 0.5,
                 transition: 'all 0.3s', background: '#0a1628'

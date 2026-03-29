@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { FaShip, FaPlane, FaTruck, FaGlobeAmericas } from 'react-icons/fa'
+import useIsMobile from '../hooks/useIsMobile'
 
 const AnimatedText = ({ text, delay = 0, style }) => (
   <span style={{ display: 'inline-flex', overflow: 'hidden', ...style }}>
@@ -56,6 +57,7 @@ const CountUp = ({ end }) => {
 }
 
 const HeroV1 = () => {
+  const isMobile = useIsMobile()
   return (
     <section style={{
       position: 'relative',
@@ -65,19 +67,12 @@ const HeroV1 = () => {
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
-      background: 'linear-gradient(160deg, #0a1628 0%, #1a365d 40%, #2c5282 100%)'
+      background: 'transparent'
     }}>
       <div style={{
         position: 'absolute', inset: 0,
-        backgroundImage: 'radial-gradient(rgba(99,179,237,0.15) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(rgba(99,179,237,0.1) 1px, transparent 1px)',
         backgroundSize: '30px 30px', zIndex: 1
-      }} />
-      <div style={{
-        position: 'absolute', top: '20%', left: '50%',
-        transform: 'translate(-50%, -50%)', width: '600px', height: '600px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99,179,237,0.08) 0%, transparent 70%)',
-        zIndex: 1
       }} />
       <svg style={{ position: 'absolute', inset: 0, zIndex: 1, opacity: 0.15 }} viewBox="0 0 1400 800" preserveAspectRatio="none">
         <motion.path d="M0,400 Q350,200 700,350 T1400,300" stroke="#63b3ed" strokeWidth="1" fill="none"
@@ -97,7 +92,7 @@ const HeroV1 = () => {
         />
       ))}
 
-      <div style={{ position: 'relative', zIndex: 3, textAlign: 'center', padding: '80px 24px 40px', maxWidth: '1100px' }}>
+      <div style={{ position: 'relative', zIndex: 3, textAlign: 'center', padding: isMobile ? '60px 16px 24px' : '80px 24px 40px', maxWidth: '1100px' }}>
 
         <h1 style={{
           fontSize: 'clamp(42px, 8vw, 90px)', fontWeight: 900, color: '#fff',
@@ -120,10 +115,10 @@ const HeroV1 = () => {
 
       <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 1.6 }}
         style={{
-          position: 'relative', zIndex: 3, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '30px', padding: '30px 40px', background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(10px)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)',
-          margin: '10px 24px 40px', maxWidth: '700px', width: '90%'
+          position: 'relative', zIndex: 3, display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+          gap: isMobile ? '20px' : '30px', padding: isMobile ? '20px' : '30px 40px', background: 'rgba(10,22,40,0.6)',
+          backdropFilter: 'blur(12px)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)',
+          margin: '10px 24px 40px', maxWidth: isMobile ? '340px' : '700px', width: '90%'
         }}>
         <Counter end={10} suffix="+" label="Años" icon={FaGlobeAmericas} delay={1.8} />
         <Counter end={5} suffix="" label="Países" icon={FaShip} delay={2.0} />
@@ -137,12 +132,12 @@ const HeroV1 = () => {
         style={{
           position: 'relative', zIndex: 3, textAlign: 'center',
           fontSize: 'clamp(14px, 1.8vw, 18px)', fontStyle: 'italic',
-          color: 'rgba(255,255,255,0.35)', maxWidth: '600px',
+          color: 'rgba(255,255,255,0.55)', maxWidth: '600px',
           margin: '24px auto 40px', padding: '0 24px', lineHeight: 1.7
         }}
       >
         "No es sobre las ideas, sino sobre hacer que estas se vuelvan realidad"
-        <span style={{ display: 'block', marginTop: '8px', fontStyle: 'normal', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
+        <span style={{ display: 'block', marginTop: '8px', fontStyle: 'normal', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
           — Scott Belsky
         </span>
       </motion.p>

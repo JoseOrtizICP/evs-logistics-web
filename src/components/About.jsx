@@ -4,6 +4,7 @@ import { FaArrowLeft, FaMapMarkerAlt } from 'react-icons/fa'
 import * as d3 from 'd3'
 import { feature } from 'topojson-client'
 import ScrollReveal from './ScrollReveal'
+import useIsMobile from '../hooks/useIsMobile'
 
 const countries = {
   mexico: {
@@ -89,17 +90,15 @@ const countries = {
   }
 }
 
-const GLOBE_SIZE = 450
-
-const D3Globe = ({ onSelectCountry }) => {
+const D3Globe = ({ onSelectCountry, size = 450 }) => {
   const svgRef = useRef(null)
   const [worldData, setWorldData] = useState(null)
-  const [rotation, setRotation] = useState([-40, -20, 0])
+  const [rotation, setRotation] = useState([99, -5, 0])
   const [hovered, setHovered] = useState(null)
   const dragging = useRef(false)
   const lastPos = useRef(null)
   const autoRotate = useRef(true)
-  const rotRef = useRef([-40, -20, 0])
+  const rotRef = useRef([99, -5, 0])
 
   // Load world data
   useEffect(() => {
@@ -126,8 +125,8 @@ const D3Globe = ({ onSelectCountry }) => {
   }, [])
 
   const projection = d3.geoOrthographic()
-    .scale(GLOBE_SIZE / 2 - 10)
-    .translate([GLOBE_SIZE / 2, GLOBE_SIZE / 2])
+    .scale(size / 2 - 10)
+    .translate([size / 2, size / 2])
     .rotate(rotation)
     .clipAngle(90)
 
@@ -175,7 +174,7 @@ const D3Globe = ({ onSelectCountry }) => {
   }
 
   return (
-    <div style={{ position: 'relative', width: `${GLOBE_SIZE}px`, maxWidth: '90vw', margin: '0 auto', aspectRatio: '1' }}
+    <div style={{ position: 'relative', width: `${size}px`, maxWidth: '90vw', margin: '0 auto', aspectRatio: '1' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -190,7 +189,7 @@ const D3Globe = ({ onSelectCountry }) => {
 
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${GLOBE_SIZE} ${GLOBE_SIZE}`}
+        viewBox={`0 0 ${size} ${size}`}
         style={{ width: '100%', height: '100%', cursor: dragging.current ? 'grabbing' : 'grab' }}
       >
         <defs>
@@ -212,7 +211,7 @@ const D3Globe = ({ onSelectCountry }) => {
           {/* Relief lighting filter */}
           <filter id="relief" x="-2%" y="-2%" width="104%" height="104%">
             <feDiffuseLighting in="SourceGraphic" result="light" surfaceScale="3" diffuseConstant="0.8">
-              <fePointLight x={GLOBE_SIZE * 0.3} y={GLOBE_SIZE * 0.25} z="80" />
+              <fePointLight x={size * 0.3} y={size * 0.25} z="80" />
             </feDiffuseLighting>
             <feComposite in="SourceGraphic" in2="light" operator="arithmetic" k1="0.7" k2="0.3" k3="0" k4="0" />
           </filter>
@@ -220,7 +219,7 @@ const D3Globe = ({ onSelectCountry }) => {
 
         {/* Ocean / base sphere */}
         <circle
-          cx={GLOBE_SIZE / 2} cy={GLOBE_SIZE / 2} r={GLOBE_SIZE / 2 - 10}
+          cx={size / 2} cy={size / 2} r={size / 2 - 10}
           fill="url(#oceanGrad)"
           stroke="rgba(99,179,237,0.15)" strokeWidth="1"
         />
@@ -257,13 +256,13 @@ const D3Globe = ({ onSelectCountry }) => {
 
         {/* 3D shading overlay */}
         <circle
-          cx={GLOBE_SIZE / 2} cy={GLOBE_SIZE / 2} r={GLOBE_SIZE / 2 - 10}
+          cx={size / 2} cy={size / 2} r={size / 2 - 10}
           fill="url(#globeShading)" pointerEvents="none"
         />
 
         {/* Atmosphere glow edge */}
         <circle
-          cx={GLOBE_SIZE / 2} cy={GLOBE_SIZE / 2} r={GLOBE_SIZE / 2 - 10}
+          cx={size / 2} cy={size / 2} r={size / 2 - 10}
           fill="url(#globeGlow)" pointerEvents="none"
         />
       </svg>
@@ -278,8 +277,8 @@ const D3Globe = ({ onSelectCountry }) => {
         return (
           <div key={key} style={{
             position: 'absolute',
-            left: `${(pos.x / GLOBE_SIZE) * 100}%`,
-            top: `${(pos.y / GLOBE_SIZE) * 100}%`,
+            left: `${(pos.x / size) * 100}%`,
+            top: `${(pos.y / size) * 100}%`,
             transform: `translate(-50%, -50%) scale(${scale})`,
             zIndex: 10, cursor: 'pointer',
             width: '14px', height: '14px'
@@ -385,7 +384,7 @@ const ClientLogos = ({ clients }) => {
 }
 
 // Zoom transition with flag colors
-const ZoomTransition = ({ country, onComplete }) => {
+const ZoomTransition = ({ country, onComplete, isMobile }) => {
   const c = countries[country]
   useEffect(() => {
     if (c) {
@@ -407,32 +406,32 @@ const ZoomTransition = ({ country, onComplete }) => {
       />
       <motion.div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}
         initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }}>
-        <span style={{ fontSize: '80px', display: 'block' }}>{c.flag}</span>
-        <h2 style={{ fontSize: '36px', fontWeight: 800, color: '#fff', textShadow: '0 2px 20px rgba(0,0,0,0.4)', marginTop: '12px' }}>{c.name}</h2>
+        <span style={{ fontSize: isMobile ? '56px' : '80px', display: 'block' }}>{c.flag}</span>
+        <h2 style={{ fontSize: isMobile ? '26px' : '36px', fontWeight: 800, color: '#fff', textShadow: '0 2px 20px rgba(0,0,0,0.4)', marginTop: '12px' }}>{c.name}</h2>
       </motion.div>
     </motion.div>
   )
 }
 
 // Country detail page
-const CountryPage = ({ countryKey, onBack }) => {
+const CountryPage = ({ countryKey, onBack, isMobile }) => {
   const c = countries[countryKey]
   if (!c) return null
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
-      style={{ minHeight: '100vh', padding: '100px 24px 60px', background: '#0d1b2e' }}>
+      style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#63b3ed', fontSize: '14px', fontWeight: 500, cursor: 'pointer', marginBottom: '40px', padding: 0 }}>
+        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#63b3ed', fontSize: '14px', fontWeight: 500, cursor: 'pointer', marginBottom: isMobile ? '24px' : '40px', padding: 0 }}>
           <FaArrowLeft /> Volver al mapa
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-          <span style={{ fontSize: '48px' }}>{c.flag}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '16px', marginBottom: '12px' }}>
+          <span style={{ fontSize: isMobile ? '36px' : '48px' }}>{c.flag}</span>
           <div>
             <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: '#fff', margin: 0 }}>{c.name}</h1>
             <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '20px', background: `${c.color}20`, color: c.color, fontSize: '13px', fontWeight: 600, marginTop: '6px' }}>Desde {c.year}</span>
           </div>
         </div>
-        <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: '50px', maxWidth: '700px' }}>{c.intro}</p>
+        <p style={{ fontSize: isMobile ? '15px' : '17px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: isMobile ? '30px' : '50px', maxWidth: '700px' }}>{c.intro}</p>
         {c.clients.length > 0 && (
           <div style={{ marginBottom: '50px' }}>
             <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>Clientes Destacados</h2>
@@ -441,7 +440,7 @@ const CountryPage = ({ countryKey, onBack }) => {
         )}
         <div>
           <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>Ubicaciones</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
             {c.locations.map((loc, i) => (
               <div key={i} style={{ padding: '18px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <FaMapMarkerAlt style={{ color: c.color, fontSize: '16px', marginTop: '2px', flexShrink: 0 }} />
@@ -459,6 +458,7 @@ const CountryPage = ({ countryKey, onBack }) => {
 }
 
 const About = () => {
+  const isMobile = useIsMobile()
   const [showPage, setShowPage] = useState(null)
   const [zoomingTo, setZoomingTo] = useState(null)
 
@@ -467,17 +467,17 @@ const About = () => {
   const handleBack = () => setShowPage(null)
 
   if (showPage) {
-    return <CountryPage countryKey={showPage} onBack={handleBack} />
+    return <CountryPage countryKey={showPage} onBack={handleBack} isMobile={isMobile} />
   }
 
   return (
     <>
       <AnimatePresence>
-        {zoomingTo && <ZoomTransition country={zoomingTo} onComplete={handleZoomComplete} />}
+        {zoomingTo && <ZoomTransition country={zoomingTo} onComplete={handleZoomComplete} isMobile={isMobile} />}
       </AnimatePresence>
 
-      <section style={{ minHeight: '100vh', padding: '100px 24px 60px', background: '#0d1b2e', position: 'relative' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <section style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <ScrollReveal>
             <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#63b3ed', marginBottom: '12px' }}>Nosotros</p>
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
@@ -489,22 +489,22 @@ const About = () => {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            <D3Globe onSelectCountry={handleSelectCountry} />
+            <D3Globe onSelectCountry={handleSelectCountry} size={isMobile ? 300 : 450} />
             <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', textTransform: 'uppercase' }}>
               Arrastra para rotar • Click en un punto para explorar
             </p>
           </ScrollReveal>
 
           <ScrollReveal delay={0.4}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', marginTop: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '10px' : '16px', flexWrap: 'wrap', marginTop: isMobile ? '24px' : '40px' }}>
               {Object.entries(countries).map(([key, c]) => (
                 <motion.button key={key} onClick={() => handleSelectCountry(key)}
                   whileHover={{ scale: 1.05, y: -4 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 22px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s' }}>
-                  <span style={{ fontSize: '24px' }}>{c.flag}</span>
+                  style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', padding: isMobile ? '10px 14px' : '14px 22px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <span style={{ fontSize: isMobile ? '20px' : '24px' }}>{c.flag}</span>
                   <div style={{ textAlign: 'left' }}>
-                    <p style={{ fontSize: '14px', color: '#fff', fontWeight: 600, margin: 0 }}>{c.name}</p>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>Desde {c.year}</p>
+                    <p style={{ fontSize: isMobile ? '12px' : '14px', color: '#fff', fontWeight: 600, margin: 0 }}>{c.name}</p>
+                    <p style={{ fontSize: isMobile ? '10px' : '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>Desde {c.year}</p>
                   </div>
                 </motion.button>
               ))}
