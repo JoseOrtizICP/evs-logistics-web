@@ -6,7 +6,7 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vite", "--port", "5173"],
       "port": 5173,
-      "cwd": "/tmp/evs-web"
+      "cwd": "/Users/joseortiz/Desktop/Pagina web /evs-logistics-web"
     }
   ]
 }

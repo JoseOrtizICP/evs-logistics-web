@@ -5,13 +5,43 @@ import ScrollReveal from './ScrollReveal'
 import useIsMobile from '../hooks/useIsMobile'
 
 const photos = [
+  // Originales
   { src: '/fotos/bodega-pallets.jpg', caption: 'Bodega y almacenaje de pallets' },
   { src: '/fotos/camion-bodega.jpg', caption: 'Transporte terrestre en bodega' },
   { src: '/fotos/interior-contenedor.jpg', caption: 'Interior de contenedor' },
   { src: '/fotos/contenedor-exterior.jpg', caption: 'Contenedor listo para embarque' },
   { src: '/fotos/contenedor-carga.jpg', caption: 'Carga de contenedor' },
   { src: '/fotos/grua-carga.jpg', caption: 'Operación de grúa portuaria' },
-  { src: '/fotos/carga-asegurada.jpg', caption: 'Carga asegurada y lista' }
+  { src: '/fotos/carga-asegurada.jpg', caption: 'Carga asegurada y lista' },
+  // Contenedores y embarque
+  { src: '/fotos/contenedor-pil.jpg', caption: 'Contenedor PIL con carga' },
+  { src: '/fotos/contenedor-interior-carga.jpg', caption: 'Interior de contenedor con carga' },
+  { src: '/fotos/contenedor-red-carga.jpg', caption: 'Carga asegurada con red' },
+  { src: '/fotos/contenedor-especificaciones.jpg', caption: 'Contenedor con especificaciones' },
+  { src: '/fotos/carga-contenedor-exterior.jpg', caption: 'Carga de contenedor al exterior' },
+  { src: '/fotos/contenedor-organizado.jpg', caption: 'Contenedor organizado' },
+  // Transporte terrestre
+  { src: '/fotos/camion-contenedor.jpg', caption: 'Camión con contenedor cargado' },
+  { src: '/fotos/camion-trasera.jpg', caption: 'Vista trasera de carga en camión' },
+  { src: '/fotos/camion-amarillo.jpg', caption: 'Camión de transporte de carga' },
+  { src: '/fotos/camiones-bodega.jpg', caption: 'Camiones en bodega' },
+  { src: '/fotos/camion-cajas-madera.jpg', caption: 'Transporte de cajas de madera' },
+  { src: '/fotos/operador-camion.jpg', caption: 'Operador de transporte' },
+  // Almacén y carga
+  { src: '/fotos/cajas-almacen.jpg', caption: 'Cajas en almacén' },
+  { src: '/fotos/cajas-apiladas.jpg', caption: 'Cajas apiladas en bodega' },
+  { src: '/fotos/bodega-cajas.jpg', caption: 'Bodega con mercancía' },
+  { src: '/fotos/ibc-contenedores.jpg', caption: 'Contenedores IBC para líquidos' },
+  { src: '/fotos/ibc-detalle.jpg', caption: 'Detalle de contenedores IBC' },
+  { src: '/fotos/paquete-bodega.jpg', caption: 'Paquete grande en bodega' },
+  { src: '/fotos/carga-envuelta.jpg', caption: 'Carga envuelta y protegida' },
+  { src: '/fotos/pallets-bodega.jpg', caption: 'Pallets en bodega' },
+  { src: '/fotos/envio-grande.jpg', caption: 'Envío de gran tamaño' },
+  // Equipo de trabajo
+  { src: '/fotos/equipo-trabajo.jpg', caption: 'Equipo de trabajo EVS' },
+  { src: '/fotos/equipo-embalaje.jpg', caption: 'Equipo en embalaje de carga' },
+  { src: '/fotos/equipo-bodega.jpg', caption: 'Equipo en operaciones de bodega' },
+  { src: '/fotos/equipo-camion.jpg', caption: 'Equipo en carga de camión' }
 ]
 
 const PhotoCarousel = () => {
@@ -89,20 +119,30 @@ const PhotoCarousel = () => {
           </button>
         </div>
 
-        {/* Thumbnails */}
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {photos.map((photo, i) => (
-            <button key={i} onClick={() => setCurrent(i)}
-              style={{
-                width: isMobile ? '56px' : '80px', height: isMobile ? '40px' : '56px', borderRadius: isMobile ? '6px' : '8px', overflow: 'hidden',
-                border: current === i ? '2px solid #3182ce' : '2px solid transparent',
-                cursor: 'pointer', padding: 0, opacity: current === i ? 1 : 0.5,
-                transition: 'all 0.3s', background: '#0a1628'
-              }}>
-              <img src={photo.src} alt={photo.caption}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </button>
-          ))}
+        {/* Thumbnails - show 5 centered around current */}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          {(() => {
+            const total = photos.length
+            const visible = 5
+            const half = Math.floor(visible / 2)
+            const indices = []
+            for (let offset = -half; offset <= half; offset++) {
+              indices.push((current + offset + total) % total)
+            }
+            return indices.map((i) => (
+              <button key={`thumb-${i}`} onClick={() => setCurrent(i)}
+                style={{
+                  width: isMobile ? '56px' : '100px', height: isMobile ? '40px' : '70px', borderRadius: isMobile ? '6px' : '8px', overflow: 'hidden',
+                  border: current === i ? '2px solid #3182ce' : '2px solid transparent',
+                  cursor: 'pointer', padding: 0, opacity: current === i ? 1 : 0.5,
+                  transition: 'all 0.3s', background: '#0a1628',
+                  transform: current === i ? 'scale(1.1)' : 'scale(1)'
+                }}>
+                <img src={photos[i].src} alt={photos[i].caption}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </button>
+            ))
+          })()}
         </div>
       </div>
     </section>
