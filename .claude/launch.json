@@ -3,10 +3,10 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--port", "5173"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5173"],
       "port": 5173,
-      "cwd": "/Users/joseortiz/Desktop/Pagina web /evs-logistics-web"
+      "cwd": "/Users/joseortiz/Desktop/CLAUDE TRBAJAO /Páginas web /PAGINA WEB EVS/evs-logistics-web"
     }
   ]
 }
