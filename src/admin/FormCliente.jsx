@@ -47,6 +47,15 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
 
   const cambiar = (campo) => (e) => setDatos(d => ({ ...d, [campo]: e.target.value }))
 
+  // Mensaje completo listo para pegar y enviar al cliente.
+  const mensajeCliente = () =>
+    `¡Hola! Estos son tus datos para entrar al Portal de Clientes de EVS Logistics:\n\n` +
+    `Número de cliente: ${datos.numero}\n` +
+    `Contraseña temporal: ${datos.password}\n\n` +
+    `Entra aquí: https://www.evslogist.com/portal\n\n` +
+    `Por seguridad, cambia tu contraseña la primera vez que entres. ` +
+    `Dentro puedes seguir tus envíos y ver tu estado de cuenta.`
+
   const copiar = async (texto, cual) => {
     try {
       await navigator.clipboard.writeText(texto)
@@ -129,6 +138,17 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
                 Compártela con el cliente y pídele que la cambie al entrar. No podrás volver a verla después.
               </p>
             </Campo>
+          )}
+
+          {!editando && (
+            <button type="button"
+              onClick={() => copiar(mensajeCliente(), 'todo')}
+              style={{ ...boton.primario, width: '100%', justifyContent: 'center',
+                background: copiado === 'todo' ? COLORES.verde : COLORES.azul }}>
+              {copiado === 'todo'
+                ? <><FaCheck /> ¡Copiado! Ya solo pégalo al cliente</>
+                : <><FaCopy /> Copiar todo para enviar al cliente</>}
+            </button>
           )}
         </div>
 
