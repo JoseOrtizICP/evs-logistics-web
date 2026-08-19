@@ -3,16 +3,17 @@ import { motion } from 'framer-motion'
 import ScrollReveal from './ScrollReveal'
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaWhatsapp, FaWarehouse, FaFacebookF, FaInstagram, FaLinkedinIn, FaPaperPlane } from 'react-icons/fa'
 import useIsMobile from '../hooks/useIsMobile'
+import { T } from '../tema'
 
 const inputStyle = {
   width: '100%',
   padding: '14px 16px',
   borderRadius: '10px',
-  border: '1px solid rgba(255,255,255,0.15)',
+  border: `1px solid ${T.bordeFuerte}`,
   fontSize: '15px',
   fontFamily: 'inherit',
-  background: 'rgba(255,255,255,0.05)',
-  color: '#fff',
+  background: T.superficie,
+  color: T.texto,
   outline: 'none',
   transition: 'border-color 0.2s, box-shadow 0.2s',
   boxSizing: 'border-box'
@@ -22,7 +23,7 @@ const labelStyle = {
   display: 'block',
   fontSize: '13px',
   fontWeight: 600,
-  color: 'rgba(255,255,255,0.6)',
+  color: T.suave,
   marginBottom: '6px'
 }
 
@@ -62,11 +63,11 @@ const Contact = () => {
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <ScrollReveal>
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: '#63b3ed', display: 'block', marginBottom: '12px' }}>CONTACTO</span>
-            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.15 }}>
-              Hablemos de tu <span style={{ color: '#63b3ed' }}>próximo envío</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: T.acento, display: 'block', marginBottom: '12px' }}>CONTACTO</span>
+            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: T.texto, lineHeight: 1.15 }}>
+              Hablemos de tu <span style={{ color: T.acento }}>próximo envío</span>
             </h2>
-            <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '16px', color: T.suave, maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
               Solicita una cotización o contáctanos para resolver cualquier duda.
             </p>
           </div>
@@ -82,8 +83,8 @@ const Contact = () => {
               transition={{ duration: 1.1, ease: 'easeOut' }}
               style={{
                 padding: isMobile ? '40px 24px' : '60px 40px', borderRadius: '20px',
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(43,108,176,0.4)',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.2)', textAlign: 'center'
+                background: T.superficie, border: '1px solid rgba(43,108,176,0.4)',
+                boxShadow: T.sombra, textAlign: 'center'
               }}>
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
@@ -98,22 +99,22 @@ const Contact = () => {
                 }}>✓</motion.div>
               <motion.h3
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1, duration: 0.6 }}
-                style={{ fontSize: '24px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>
+                style={{ fontSize: '24px', fontWeight: 700, color: T.texto, marginBottom: '12px' }}>
                 ¡Gracias!
               </motion.h3>
               <motion.p
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4, duration: 0.6 }}
-                style={{ fontSize: '16px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, maxWidth: '360px', margin: '0 auto' }}>
+                style={{ fontSize: '16px', color: T.suave, lineHeight: 1.7, maxWidth: '360px', margin: '0 auto' }}>
                 Un ejecutivo se comunicará contigo a la brevedad.
               </motion.p>
             </motion.div>
             ) : (
             <form onSubmit={handleSubmit} style={{
               padding: isMobile ? '20px' : '36px', borderRadius: '20px',
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
+              background: T.superficie, border: `1px solid ${T.borde}`,
+              boxShadow: T.sombra
             }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: T.texto, marginBottom: '24px' }}>
                 Solicitar Cotización
               </h3>
 
@@ -123,14 +124,14 @@ const Contact = () => {
                   <input name="nombre" value={form.nombre} onChange={handleChange} required
                     placeholder="Tu nombre" style={inputStyle}
                     onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }} />
+                    onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }} />
                 </div>
                 <div>
                   <label style={labelStyle}>Empresa</label>
                   <input name="empresa" value={form.empresa} onChange={handleChange}
                     placeholder="Nombre de empresa" style={inputStyle}
                     onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }} />
+                    onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }} />
                 </div>
               </div>
 
@@ -140,14 +141,14 @@ const Contact = () => {
                   <input name="email" type="email" value={form.email} onChange={handleChange} required
                     placeholder="correo@ejemplo.com" style={inputStyle}
                     onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }} />
+                    onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }} />
                 </div>
                 <div>
                   <label style={labelStyle}>Teléfono</label>
                   <input name="telefono" value={form.telefono} onChange={handleChange}
                     placeholder="+52 (55) ..." style={inputStyle}
                     onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }} />
+                    onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }} />
                 </div>
               </div>
 
@@ -156,7 +157,7 @@ const Contact = () => {
                 <select name="servicio" value={form.servicio} onChange={handleChange}
                   style={{ ...inputStyle, cursor: 'pointer', appearance: 'auto' }}
                   onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }}>
+                  onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }}>
                   <option value="">Selecciona un servicio</option>
                   <option value="forwarding">Forwarding (Marítimo/Aéreo)</option>
                   <option value="aduanal">Gestión Aduanal</option>
@@ -175,7 +176,7 @@ const Contact = () => {
                   rows={4}
                   style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }}
                   onFocus={e => { e.target.style.borderColor = '#3182ce'; e.target.style.boxShadow = '0 0 0 3px rgba(49,130,206,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }} />
+                  onBlur={e => { e.target.style.borderColor = T.bordeFuerte; e.target.style.boxShadow = 'none' }} />
               </div>
 
               <button type="submit" disabled={status === 'sending'} style={{
@@ -206,7 +207,7 @@ const Contact = () => {
           {/* Info de contacto */}
           <ScrollReveal delay={0.2}>
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: T.texto, marginBottom: '24px' }}>
                 Información de Contacto
               </h3>
 
@@ -219,11 +220,11 @@ const Contact = () => {
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '16px',
                     padding: '18px 20px', borderRadius: '14px',
-                    border: '1px solid rgba(255,255,255,0.08)', marginBottom: '12px',
+                    border: `1px solid ${T.borde}`, marginBottom: '12px',
                     transition: 'all 0.3s', cursor: 'pointer'
                   }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,179,237,0.3)'; e.currentTarget.style.transform = 'translateX(4px)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateX(0)' }}>
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = T.borde; e.currentTarget.style.transform = 'translateX(0)' }}>
                     <div style={{
                       width: '44px', height: '44px', borderRadius: '12px',
                       background: 'rgba(99,179,237,0.1)', display: 'flex',
@@ -232,8 +233,8 @@ const Contact = () => {
                       <item.icon style={{ fontSize: '18px', color: '#3182ce' }} />
                     </div>
                     <div>
-                      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>{item.label}</p>
-                      <p style={{ fontSize: '15px', fontWeight: 600, color: '#fff' }}>{item.value}</p>
+                      <p style={{ fontSize: '12px', color: T.suave, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>{item.label}</p>
+                      <p style={{ fontSize: '15px', fontWeight: 600, color: T.texto }}>{item.value}</p>
                     </div>
                   </div>
                 </a>

@@ -24,6 +24,9 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+        env:
+          # Se configura en Settings > Secrets and variables > Actions > Variables.
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.evslogist.com' }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist

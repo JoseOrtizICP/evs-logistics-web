@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import useIsMobile from '../hooks/useIsMobile'
+import { T } from '../tema'
 
 const flagsRow1 = ['🇲🇽','🇺🇸','🇨🇳','🇪🇨','🇨🇴','🇩🇴','🇧🇷','🇩🇪','🇯🇵','🇰🇷','🇬🇧','🇫🇷','🇮🇳','🇨🇦','🇦🇷','🇨🇱','🇵🇪','🇵🇦','🇪🇸','🇮🇹']
 const flagsRow2 = ['🇹🇼','🇹🇭','🇻🇳','🇸🇬','🇳🇱','🇧🇪','🇦🇪','🇹🇷','🇵🇹','🇸🇪','🇵🇱','🇦🇺','🇳🇿','🇿🇦','🇬🇹','🇭🇳','🇨🇷','🇵🇾','🇺🇾','🇲🇾']
@@ -30,12 +31,12 @@ const Marquee = () => {
   const isMobile = useIsMobile()
   return (
     <section style={{
-      background: '#0f1c2e',
+      background: T.banda,
       padding: isMobile ? '16px 0' : '24px 0',
       position: 'relative',
       overflow: 'hidden',
-      borderTop: '1px solid rgba(99,179,237,0.08)',
-      borderBottom: '1px solid rgba(99,179,237,0.08)'
+      borderTop: `1px solid ${T.bandaBorde}`,
+      borderBottom: `1px solid ${T.bandaBorde}`
     }}>
       <p style={{
         textAlign: 'center',

@@ -7,6 +7,7 @@ import PhotoCarousel from './components/PhotoCarousel'
 import Contact from './components/Contact'
 import FooterV1 from './components/FooterV1'
 import Marquee from './components/Marquee'
+import { T } from './tema'
 
 const pages = {
   inicio: HeroV1,
@@ -30,21 +31,18 @@ const App = () => {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Global fixed background */}
+      {/* Fondo fijo: fotografía del puerto con velo azul marino */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0,
         backgroundImage: 'url(/fotos/hero-port.jpg)',
         backgroundSize: 'cover', backgroundPosition: 'center',
       }} />
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0,
-        background: 'rgba(13,27,46,0.88)',
-      }} />
-      {/* Subtle curved lines overlay */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, background: T.velo }} />
+      {/* Líneas curvas de acento */}
       <svg style={{ position: 'fixed', inset: 0, zIndex: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-        <path d="M0,600 Q360,300 720,400 T1440,200" fill="none" stroke="rgba(99,179,237,0.10)" strokeWidth="0.8" />
-        <path d="M0,200 Q400,500 800,350 T1440,650" fill="none" stroke="rgba(99,179,237,0.08)" strokeWidth="0.7" />
-        <path d="M0,450 Q350,250 720,300 T1440,450" fill="none" stroke="rgba(99,179,237,0.07)" strokeWidth="0.6" />
+        <path d="M0,600 Q360,300 720,400 T1440,200" fill="none" stroke={T.lineas} strokeWidth="0.8" />
+        <path d="M0,200 Q400,500 800,350 T1440,650" fill="none" stroke={T.lineas} strokeWidth="0.7" opacity="0.8" />
+        <path d="M0,450 Q350,250 720,300 T1440,450" fill="none" stroke={T.lineas} strokeWidth="0.6" opacity="0.7" />
       </svg>
       <div style={{ position: 'relative', zIndex: 1 }}>
         <NavbarV1 currentPage={currentPage} onNavigate={handleNavigate} />

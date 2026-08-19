@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import ScrollReveal from './ScrollReveal'
+import { T } from '../tema'
 import useIsMobile from '../hooks/useIsMobile'
 
 const photos = [
@@ -70,11 +71,11 @@ const PhotoCarousel = () => {
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <ScrollReveal>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: '#63b3ed', display: 'block', marginBottom: '12px' }}>GALERÍA</span>
-            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.15 }}>
-              Nuestro <span style={{ color: '#63b3ed' }}>Trabajo</span>
+            <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', color: T.acento, display: 'block', marginBottom: '12px' }}>GALERÍA</span>
+            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: T.texto, lineHeight: 1.15 }}>
+              Nuestro <span style={{ color: T.acento }}>Trabajo</span>
             </h2>
-            <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '16px', color: T.suave, maxWidth: '500px', margin: '12px auto 0', lineHeight: 1.6 }}>
               Conoce de cerca nuestras operaciones logísticas.
             </p>
           </div>

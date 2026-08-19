@@ -4,6 +4,7 @@ import { FaArrowLeft, FaMapMarkerAlt } from 'react-icons/fa'
 import * as d3 from 'd3'
 import { feature } from 'topojson-client'
 import ScrollReveal from './ScrollReveal'
+import { T } from '../tema'
 import useIsMobile from '../hooks/useIsMobile'
 
 const countries = {
@@ -364,6 +365,7 @@ const ClientLogos = ({ clients }) => {
               alt={clients[current].name}
               style={{
                 maxWidth: '180px', maxHeight: '80px', objectFit: 'contain',
+                // Unifica todos los logos de clientes a blanco.
                 filter: 'brightness(0) invert(1)', opacity: 0.9
               }}
             />
@@ -373,7 +375,7 @@ const ClientLogos = ({ clients }) => {
           {clients.map((_, i) => (
             <div key={i} style={{
               width: current === i ? '20px' : '6px', height: '6px', borderRadius: '3px',
-              background: current === i ? '#63b3ed' : 'rgba(255,255,255,0.15)',
+              background: current === i ? T.acento : T.bordeFuerte,
               transition: 'all 0.3s'
             }} />
           ))}
@@ -421,32 +423,32 @@ const CountryPage = ({ countryKey, onBack, isMobile }) => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
       style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#63b3ed', fontSize: '14px', fontWeight: 500, cursor: 'pointer', marginBottom: isMobile ? '24px' : '40px', padding: 0 }}>
+        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: T.acento, fontSize: '14px', fontWeight: 500, cursor: 'pointer', marginBottom: isMobile ? '24px' : '40px', padding: 0 }}>
           <FaArrowLeft /> Volver al mapa
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '16px', marginBottom: '12px' }}>
           <span style={{ fontSize: isMobile ? '36px' : '48px' }}>{c.flag}</span>
           <div>
-            <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: '#fff', margin: 0 }}>{c.name}</h1>
+            <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: T.texto, margin: 0 }}>{c.name}</h1>
             <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '20px', background: `${c.color}20`, color: c.color, fontSize: '13px', fontWeight: 600, marginTop: '6px' }}>Desde {c.year}</span>
           </div>
         </div>
-        <p style={{ fontSize: isMobile ? '15px' : '17px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: isMobile ? '30px' : '50px', maxWidth: '700px' }}>{c.intro}</p>
+        <p style={{ fontSize: isMobile ? '15px' : '17px', color: T.suave, lineHeight: 1.8, marginBottom: isMobile ? '30px' : '50px', maxWidth: '700px' }}>{c.intro}</p>
         {c.clients.length > 0 && (
           <div style={{ marginBottom: '50px' }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>Clientes Destacados</h2>
+            <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: T.tenue, marginBottom: '16px' }}>Clientes Destacados</h2>
             <ClientLogos clients={c.clients} />
           </div>
         )}
         <div>
-          <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '16px' }}>Ubicaciones</h2>
+          <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: T.tenue, marginBottom: '16px' }}>Ubicaciones</h2>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))', gap: '14px' }}>
             {c.locations.map((loc, i) => (
-              <div key={i} style={{ padding: '18px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div key={i} style={{ padding: '18px 20px', borderRadius: '12px', background: T.superficie, border: `1px solid ${T.borde}`, display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <FaMapMarkerAlt style={{ color: c.color, fontSize: '16px', marginTop: '2px', flexShrink: 0 }} />
                 <div>
                   <p style={{ fontSize: '12px', color: c.color, fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>{loc.type}</p>
-                  <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{loc.place}</p>
+                  <p style={{ fontSize: '14px', color: T.suave, lineHeight: 1.5 }}>{loc.place}</p>
                 </div>
               </div>
             ))}
@@ -479,18 +481,18 @@ const About = () => {
       <section style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <ScrollReveal>
-            <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#63b3ed', marginBottom: '12px' }}>Nosotros</p>
-            <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
-              Presencia <span style={{ color: '#63b3ed' }}>Global</span>
+            <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: T.acento, marginBottom: '12px' }}>Nosotros</p>
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: T.texto, marginBottom: '16px' }}>
+              Presencia <span style={{ color: T.acento }}>Global</span>
             </h2>
-            <p style={{ textAlign: 'center', fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
+            <p style={{ textAlign: 'center', fontSize: '16px', color: T.suave, maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
               Operamos en 5 países estratégicos, conectando Latinoamérica con Asia para optimizar tu cadena de suministro.
             </p>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
             <D3Globe onSelectCountry={handleSelectCountry} size={isMobile ? 300 : 450} />
-            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '11px', color: T.tenue, letterSpacing: '2px', textTransform: 'uppercase' }}>
               Arrastra para rotar • Click en un punto para explorar
             </p>
           </ScrollReveal>
@@ -500,11 +502,11 @@ const About = () => {
               {Object.entries(countries).map(([key, c]) => (
                 <motion.button key={key} onClick={() => handleSelectCountry(key)}
                   whileHover={{ scale: 1.05, y: -4 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', padding: isMobile ? '10px 14px' : '14px 22px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '10px', padding: isMobile ? '10px 14px' : '14px 22px', borderRadius: '12px', background: T.superficie, border: `1px solid ${T.borde}`, cursor: 'pointer', transition: 'all 0.2s' }}>
                   <span style={{ fontSize: isMobile ? '20px' : '24px' }}>{c.flag}</span>
                   <div style={{ textAlign: 'left' }}>
-                    <p style={{ fontSize: isMobile ? '12px' : '14px', color: '#fff', fontWeight: 600, margin: 0 }}>{c.name}</p>
-                    <p style={{ fontSize: isMobile ? '10px' : '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>Desde {c.year}</p>
+                    <p style={{ fontSize: isMobile ? '12px' : '14px', color: T.texto, fontWeight: 600, margin: 0 }}>{c.name}</p>
+                    <p style={{ fontSize: isMobile ? '10px' : '11px', color: T.tenue, margin: 0 }}>Desde {c.year}</p>
                   </div>
                 </motion.button>
               ))}

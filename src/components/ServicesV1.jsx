@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaShip, FaPlane, FaFileContract, FaShoppingCart, FaTruck, FaBoxes, FaArrowLeft, FaCheckCircle } from 'react-icons/fa'
 import ScrollReveal from './ScrollReveal'
+import { T } from '../tema'
 import useIsMobile from '../hooks/useIsMobile'
 
 const services = [
@@ -68,7 +69,7 @@ const ServiceCard = ({ service, index, onClick }) => {
       style={{
         position: 'relative', borderRadius: '16px', overflow: 'hidden',
         cursor: 'pointer', height: '320px',
-        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+        background: T.superficie, border: `1px solid ${T.borde}`,
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: hovered ? 'translateY(-8px)' : 'translateY(0)',
         boxShadow: hovered ? '0 20px 40px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
@@ -128,29 +129,29 @@ const ServiceCard = ({ service, index, onClick }) => {
           }}>
             <service.icon style={{
               fontSize: '22px',
-              color: hovered ? '#fff' : '#63b3ed',
+              color: hovered ? '#fff' : T.acento,
               transition: 'color 0.3s'
             }} />
           </div>
           <h3 style={{
             fontSize: '20px', fontWeight: 700, margin: '0 0 6px',
-            color: '#fff', transition: 'color 0.3s'
+            color: hovered ? '#fff' : T.texto, transition: 'color 0.3s'
           }}>{service.title}</h3>
           <span style={{
             fontSize: '12px', fontWeight: 600, letterSpacing: '1px',
-            color: '#63b3ed', textTransform: 'uppercase',
+            color: hovered ? '#63b3ed' : T.acento, textTransform: 'uppercase',
             transition: 'color 0.3s'
           }}>{service.tag}</span>
         </div>
         <div>
           <p style={{
             fontSize: '14px', lineHeight: 1.6, margin: '0 0 16px',
-            color: hovered ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
+            color: hovered ? 'rgba(255,255,255,0.8)' : T.suave,
             transition: 'color 0.3s'
           }}>{service.description}</p>
           <span style={{
             fontSize: '13px', fontWeight: 600,
-            color: '#63b3ed',
+            color: hovered ? '#63b3ed' : T.acento,
             transition: 'color 0.3s'
           }}>Ver más →</span>
         </div>
@@ -166,7 +167,7 @@ const ServicePage = ({ service, onBack, isMobile }) => (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <button onClick={onBack} style={{
         display: 'flex', alignItems: 'center', gap: '8px', background: 'none',
-        border: 'none', color: '#63b3ed', fontSize: '14px', fontWeight: 500,
+        border: 'none', color: T.acento, fontSize: '14px', fontWeight: 500,
         cursor: 'pointer', marginBottom: isMobile ? '24px' : '40px', padding: 0
       }}>
         <FaArrowLeft /> Volver a servicios
@@ -197,10 +198,10 @@ const ServicePage = ({ service, onBack, isMobile }) => (
         </div>
       </div>
 
-      <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
+      <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 800, color: T.texto, marginBottom: '16px' }}>
         {service.title}
       </h1>
-      <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: '40px', maxWidth: '700px' }}>
+      <p style={{ fontSize: '17px', color: T.suave, lineHeight: 1.8, marginBottom: '40px', maxWidth: '700px' }}>
         {service.fullDescription}
       </p>
 
@@ -208,27 +209,27 @@ const ServicePage = ({ service, onBack, isMobile }) => (
       <div style={{ display: 'flex', gap: '24px', marginBottom: '40px', flexWrap: 'wrap' }}>
         {service.stats.map((s, i) => (
           <div key={i} style={{
-            padding: isMobile ? '14px 18px' : '20px 30px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', minWidth: isMobile ? '80px' : '120px'
+            padding: isMobile ? '14px 18px' : '20px 30px', borderRadius: '12px', background: T.superficie,
+            border: `1px solid ${T.borde}`, textAlign: 'center', minWidth: isMobile ? '80px' : '120px'
           }}>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#63b3ed' }}>{s.value}</div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>{s.label}</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: T.acento }}>{s.value}</div>
+            <div style={{ fontSize: '12px', color: T.suave, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Features */}
-      <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
+      <h2 style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: T.tenue, marginBottom: '20px' }}>
         Capacidades
       </h2>
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
         {service.features.map((f, i) => (
           <div key={i} style={{
             display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px',
-            borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
+            borderRadius: '10px', background: T.superficie, border: `1px solid ${T.borde}`
           }}>
             <FaCheckCircle style={{ color: '#48bb78', fontSize: '16px', flexShrink: 0 }} />
-            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{f}</span>
+            <span style={{ fontSize: '14px', color: T.suave, fontWeight: 500 }}>{f}</span>
           </div>
         ))}
       </div>
@@ -252,11 +253,11 @@ const ServicesV1 = () => {
     <section style={{ minHeight: '100vh', padding: isMobile ? '80px 16px 40px' : '100px 24px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <ScrollReveal>
-          <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: '#63b3ed', marginBottom: '12px' }}>Servicios</p>
-          <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', marginBottom: '16px' }}>
-            Soluciones <span style={{ color: '#63b3ed' }}>Completas</span> de Logística
+          <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: T.acento, marginBottom: '12px' }}>Servicios</p>
+          <h2 style={{ textAlign: 'center', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: T.texto, marginBottom: '16px' }}>
+            Soluciones <span style={{ color: T.acento }}>Completas</span> de Logística
           </h2>
-          <p style={{ textAlign: 'center', fontSize: '16px', color: 'rgba(255,255,255,0.5)', maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
+          <p style={{ textAlign: 'center', fontSize: '16px', color: T.suave, maxWidth: '600px', margin: '0 auto 50px', lineHeight: 1.7 }}>
             Ofrecemos una gama integral de servicios diseñados para simplificar y optimizar tus operaciones logísticas.
           </p>
         </ScrollReveal>
