@@ -166,7 +166,14 @@ const Admin = () => {
   if (!usuario) return <Login onEntrar={setUsuario} />
 
   return (
-    <div style={{ minHeight: '100vh', background: COLORES.fondo, color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: COLORES.fondo, color: '#fff', position: 'relative' }}>
+      {/* Fondo: fotografía del puerto con velo azul marino */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 0,
+        backgroundImage: 'url(/fotos/hero-port.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'
+      }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(13,27,46,0.92)' }} />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Encabezado */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 900, background: 'rgba(26,54,93,0.97)',
@@ -361,6 +368,7 @@ const Admin = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   )
 }

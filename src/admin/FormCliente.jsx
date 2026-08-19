@@ -105,22 +105,10 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
             </p>
           </Campo>
 
-          <Campo id="cl-nombre" label="Nombre o razón social (lo puede completar el cliente)">
-            <input id="cl-nombre" value={datos.nombre} onChange={cambiar('nombre')} style={input} {...enfoque} />
-          </Campo>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-            <Campo id="cl-contacto" label="Persona de contacto">
-              <input id="cl-contacto" value={datos.contacto} onChange={cambiar('contacto')} style={input} {...enfoque} />
-            </Campo>
-            <Campo id="cl-telefono" label="Teléfono">
-              <input id="cl-telefono" value={datos.telefono} onChange={cambiar('telefono')} style={input} {...enfoque} />
-            </Campo>
-          </div>
-
-          <Campo id="cl-email" label="Correo del cliente">
-            <input id="cl-email" type="email" value={datos.email} onChange={cambiar('email')} style={input} {...enfoque} />
-          </Campo>
+          <p style={{ fontSize: '12px', color: COLORES.textoSuave, lineHeight: 1.5, margin: '-4px 0 0' }}>
+            Solo necesitas el número y la contraseña. El cliente completa su nombre,
+            contacto y direcciones desde su portal.
+          </p>
 
           {!editando && (
             <Campo id="cl-password" label="Contraseña temporal * (mínimo 8 caracteres)">
