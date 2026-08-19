@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { migrar } from './migrar.js'
+import { pool } from './db.js'
 import rutasAuth from './rutas/auth.js'
 import rutasGuias from './rutas/guias.js'
 import rutasRastreo from './rutas/rastreo.js'
@@ -63,10 +64,27 @@ const arrancar = async () => {
     process.exit(1)
   }
 
-  app.listen(puerto, () => {
+  const servidor = app.listen(puerto, () => {
     console.log(`[EVS API] Escuchando en el puerto ${puerto}`)
     console.log(`[EVS API] Orígenes permitidos: ${origenesPermitidos.join(', ')}`)
   })
+
+  // Apagado ordenado: cuando Railway envía la señal de detener (al desplegar
+  // una versión nueva), cerramos el servidor y la base con calma y salimos
+  // con código 0. Así Railway ve un cierre limpio y NO lo reporta como caída.
+  let cerrando = false
+  const apagar = (senal) => {
+    if (cerrando) return
+    cerrando = true
+    console.log(`[EVS API] ${senal} recibida, cerrando ordenadamente…`)
+    servidor.close(() => {
+      pool.end().catch(() => {}).finally(() => process.exit(0))
+    })
+    // Red de seguridad: si algo se traba, salimos igual sin marcar error.
+    setTimeout(() => process.exit(0), 8000).unref()
+  }
+  process.on('SIGTERM', () => apagar('SIGTERM'))
+  process.on('SIGINT', () => apagar('SIGINT'))
 }
 
 arrancar()

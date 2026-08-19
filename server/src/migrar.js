@@ -148,8 +148,56 @@ const sembrarAdmin = async () => {
   console.log('[EVS API] Cambia la contraseña desde el panel y borra ADMIN_PASSWORD_INICIAL de Railway.')
 }
 
+// Crea un cliente de prueba con un envío y una factura, solo si la variable
+// SEED_CLIENTE_PRUEBA está activa. Es idempotente y sirve para probar el portal.
+const sembrarClientePrueba = async () => {
+  if (process.env.SEED_CLIENTE_PRUEBA !== 'true') return
+
+  const { rows } = await consultar('SELECT id FROM clientes WHERE numero = $1', ['EVS-C-1000'])
+  const hash = await bcrypt.hash('Prueba2026', 12)
+
+  let clienteId
+  if (rows.length) {
+    clienteId = rows[0].id
+    await consultar('UPDATE clientes SET password_hash = $1, activo = TRUE WHERE id = $2', [hash, clienteId])
+  } else {
+    const { rows: nuevo } = await consultar(
+      `INSERT INTO clientes (numero, nombre, contacto, email, telefono, password_hash, activo)
+       VALUES ('EVS-C-1000','Cliente de Prueba S.A. de C.V.','Juan Pérez','prueba@ejemplo.com','55 0000 0000',$1,TRUE)
+       RETURNING id`, [hash]
+    )
+    clienteId = nuevo[0].id
+  }
+
+  await consultar(
+    `INSERT INTO guias (numero, cliente, origen, destino, servicio, fecha_estimada, estatus)
+     VALUES ('EVS-2026-100001','Cliente de Prueba S.A. de C.V.','Shanghái, China','Guadalajara, México','maritimo', CURRENT_DATE + 9, 'en_transito')
+     ON CONFLICT (numero) DO NOTHING`
+  )
+  await consultar(
+    `INSERT INTO eventos (guia_id, estatus, descripcion, ubicacion, ocurrido_en)
+     SELECT id,'recibido','Carga recibida y verificada en almacén de origen.','Shanghái, China', NOW() - INTERVAL '12 days'
+     FROM guias WHERE numero='EVS-2026-100001'
+     AND NOT EXISTS (SELECT 1 FROM eventos e JOIN guias g ON g.id=e.guia_id WHERE g.numero='EVS-2026-100001' AND e.estatus='recibido')`
+  )
+  await consultar(
+    `INSERT INTO eventos (guia_id, estatus, descripcion, ubicacion, ocurrido_en)
+     SELECT id,'en_transito','Embarque zarpó con destino a Manzanillo.','Puerto de Shanghái', NOW() - INTERVAL '3 days'
+     FROM guias WHERE numero='EVS-2026-100001'
+     AND NOT EXISTS (SELECT 1 FROM eventos e JOIN guias g ON g.id=e.guia_id WHERE g.numero='EVS-2026-100001' AND e.estatus='en_transito')`
+  )
+  await consultar(
+    `INSERT INTO facturas (cliente_id, folio, concepto, monto, moneda, fecha_emision, fecha_vencimiento, estatus, guia_numero)
+     SELECT $1,'A-1000','Flete marítimo Shanghái - Guadalajara',45000.00,'MXN', CURRENT_DATE - 5, CURRENT_DATE + 10, 'pendiente','EVS-2026-100001'
+     WHERE NOT EXISTS (SELECT 1 FROM facturas WHERE folio='A-1000')`,
+    [clienteId]
+  )
+  console.log('[EVS API] Cliente de prueba EVS-C-1000 listo (contraseña Prueba2026).')
+}
+
 export const migrar = async () => {
   await consultar(ESQUEMA)
   await sembrarAdmin()
+  await sembrarClientePrueba()
   console.log('[EVS API] Base de datos lista.')
 }
