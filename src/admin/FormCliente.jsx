@@ -146,8 +146,8 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
               style={{ ...boton.primario, width: '100%', justifyContent: 'center',
                 background: copiado === 'todo' ? COLORES.verde : COLORES.azul }}>
               {copiado === 'todo'
-                ? <><FaCheck /> ¡Copiado! Ya solo pégalo al cliente</>
-                : <><FaCopy /> Copiar todo para enviar al cliente</>}
+                ? <><FaCheck /> ¡Copiado!</>
+                : <><FaCopy /> Copiar</>}
             </button>
           )}
         </div>

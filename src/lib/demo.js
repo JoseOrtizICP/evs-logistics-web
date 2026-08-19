@@ -135,7 +135,7 @@ export const manejarDemo = async (ruta, opciones = {}) => {
       .filter(g => !estatus || g.estatus === estatus)
       .filter(g => !buscar || [g.numero, g.cliente, g.origen, g.destino]
         .some(campo => String(campo || '').toLowerCase().includes(buscar)))
-      .map(g => ({ ...g, total_eventos: almacen.eventos.filter(e => e.guia_id === g.id).length }))
+      .map(g => { const c = almacen.clientes.find(x => x.id === g.cliente_id); return { ...g, cliente_numero: c?.numero, cliente_nombre: c?.nombre, total_eventos: almacen.eventos.filter(e => e.guia_id === g.id).length } })
       .sort((a, b) => new Date(b.actualizado_en) - new Date(a.actualizado_en))
     return { guias }
   }
@@ -148,7 +148,7 @@ export const manejarDemo = async (ruta, opciones = {}) => {
     if (almacen.guias.some(g => g.numero === numero)) error('Ya existe una guía con ese número.', 409)
 
     const guia = {
-      id: ++secuencia, numero, cliente: cuerpo.cliente || null,
+      id: ++secuencia, numero, cliente: cuerpo.cliente || null, cliente_id: cuerpo.cliente_id ? Number(cuerpo.cliente_id) : null,
       origen: cuerpo.origen, destino: cuerpo.destino, servicio: cuerpo.servicio || null,
       fecha_estimada: cuerpo.fecha_estimada || null, estatus: cuerpo.estatus || 'recibido',
       notas: cuerpo.notas || null, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString()

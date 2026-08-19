@@ -86,7 +86,8 @@ router.get('/envios', async (req, res) => {
   const { rows } = await consultar(
     `SELECT DISTINCT g.id, g.numero, g.origen, g.destino, g.servicio, g.fecha_estimada, g.estatus, g.actualizado_en
      FROM guias g
-     WHERE g.numero IN (SELECT guia_numero FROM facturas WHERE cliente_id = $1 AND guia_numero IS NOT NULL)
+     WHERE g.cliente_id = $1
+        OR g.numero IN (SELECT guia_numero FROM facturas WHERE cliente_id = $1 AND guia_numero IS NOT NULL)
      ORDER BY g.actualizado_en DESC`,
     [id]
   )
@@ -101,7 +102,9 @@ router.get('/envios/:id', async (req, res) => {
   )
   if (!rows.length) return res.status(404).json({ error: 'El envío no existe.' })
   const { rows: pertenece } = await consultar(
-    `SELECT 1 FROM facturas WHERE cliente_id = $1 AND guia_numero = $2 LIMIT 1`, [id, rows[0].numero]
+    `SELECT 1 FROM guias WHERE id = $2 AND cliente_id = $1
+     UNION SELECT 1 FROM facturas WHERE cliente_id = $1 AND guia_numero = $3 LIMIT 1`,
+    [id, Number(req.params.id), rows[0].numero]
   )
   if (!pertenece.length && !req.esDev) return res.status(403).json({ error: 'Este envío no es tuyo.' })
   const { rows: eventos } = await consultar(

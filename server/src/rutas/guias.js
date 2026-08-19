@@ -61,6 +61,7 @@ const validarGuia = (cuerpo, { parcial = false } = {}) => {
   }
 
   if (cuerpo.cliente !== undefined) datos.cliente = limpiar(cuerpo.cliente)
+  if (cuerpo.cliente_id !== undefined) datos.cliente_id = cuerpo.cliente_id ? Number(cuerpo.cliente_id) : null
   if (cuerpo.notas !== undefined) datos.notas = limpiar(cuerpo.notas)
 
   return { errores, datos }
@@ -104,8 +105,10 @@ router.get('/', async (req, res) => {
   const donde = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : ''
 
   const { rows } = await consultar(
-    `SELECT g.*, (SELECT COUNT(*)::int FROM eventos e WHERE e.guia_id = g.id) AS total_eventos
+    `SELECT g.*, c.numero AS cliente_numero, c.nombre AS cliente_nombre,
+       (SELECT COUNT(*)::int FROM eventos e WHERE e.guia_id = g.id) AS total_eventos
      FROM guias g
+     LEFT JOIN clientes c ON c.id = g.cliente_id
      ${donde}
      ORDER BY g.actualizado_en DESC
      LIMIT 300`,
@@ -141,9 +144,9 @@ router.post('/', async (req, res) => {
     await cliente.query('BEGIN')
 
     const { rows } = await cliente.query(
-      `INSERT INTO guias (numero, cliente, origen, destino, servicio, fecha_estimada, estatus, notas, creada_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [datos.numero, datos.cliente ?? null, datos.origen, datos.destino, datos.servicio ?? null,
+      `INSERT INTO guias (numero, cliente, cliente_id, origen, destino, servicio, fecha_estimada, estatus, notas, creada_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [datos.numero, datos.cliente ?? null, datos.cliente_id ?? null, datos.origen, datos.destino, datos.servicio ?? null,
        datos.fecha_estimada ?? null, estatus, datos.notas ?? null, req.usuario.id]
     )
 

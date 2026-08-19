@@ -195,8 +195,15 @@ const sembrarClientePrueba = async () => {
   console.log('[EVS API] Cliente de prueba EVS-C-1000 listo (contraseña Prueba2026).')
 }
 
+// Cambios sobre tablas que ya existen (idempotentes).
+const ALTERACIONES = `
+ALTER TABLE guias ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_guias_cliente ON guias (cliente_id);
+`
+
 export const migrar = async () => {
   await consultar(ESQUEMA)
+  await consultar(ALTERACIONES)
   await sembrarAdmin()
   await sembrarClientePrueba()
   console.log('[EVS API] Base de datos lista.')

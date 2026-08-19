@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { FaMagic, FaExclamationCircle } from 'react-icons/fa'
 import Modal from './Modal'
-import { crearGuia, actualizarGuia, sugerirNumero } from '../lib/api'
+import { crearGuia, actualizarGuia, sugerirNumero, listarClientes } from '../lib/api'
 import { ESTATUS, SERVICIOS } from '../data/estatus'
 import { input, etiqueta, boton, deshabilitado, enfoque, COLORES } from './ui'
 
 const VACIA = {
-  numero: '', cliente: '', origen: '', destino: '',
+  numero: '', cliente: '', cliente_id: '', origen: '', destino: '',
   servicio: '', fecha_estimada: '', estatus: 'recibido', notas: ''
 }
 
@@ -20,6 +20,11 @@ const Campo = ({ id, label, children }) => (
 const FormGuia = ({ guia, onCerrar, onGuardada }) => {
   const editando = Boolean(guia)
   const [datos, setDatos] = useState(VACIA)
+  const [clientes, setClientes] = useState([])
+
+  useEffect(() => {
+    listarClientes().then(({ clientes }) => setClientes(clientes)).catch(() => {})
+  }, [])
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
@@ -28,6 +33,7 @@ const FormGuia = ({ guia, onCerrar, onGuardada }) => {
       setDatos({
         numero: guia.numero || '',
         cliente: guia.cliente || '',
+        cliente_id: guia.cliente_id ? String(guia.cliente_id) : '',
         origen: guia.origen || '',
         destino: guia.destino || '',
         servicio: guia.servicio || '',
@@ -53,6 +59,7 @@ const FormGuia = ({ guia, onCerrar, onGuardada }) => {
     const cuerpo = {
       ...datos,
       cliente: datos.cliente.trim() || null,
+      cliente_id: datos.cliente_id || null,
       servicio: datos.servicio || null,
       fecha_estimada: datos.fecha_estimada || null,
       notas: datos.notas.trim() || null
@@ -90,8 +97,11 @@ const FormGuia = ({ guia, onCerrar, onGuardada }) => {
             </p>
           </Campo>
 
-          <Campo id="g-cliente" label="Cliente (uso interno, no lo ve el cliente)">
-            <input id="g-cliente" value={datos.cliente} onChange={cambiar('cliente')} style={input} {...enfoque} />
+          <Campo id="g-cliente-id" label="Cliente (para que le aparezca esta guía en su portal)">
+            <select id="g-cliente-id" value={datos.cliente_id} onChange={cambiar('cliente_id')} style={input} {...enfoque}>
+              <option value="">Sin asignar</option>
+              {clientes.map(c => <option key={c.id} value={c.id}>{c.numero} · {c.nombre}</option>)}
+            </select>
           </Campo>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
