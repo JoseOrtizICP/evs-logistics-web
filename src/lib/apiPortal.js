@@ -37,3 +37,19 @@ export const guardarCorreoSeguridad = (correo) =>
 // Solo funciona si la sesión actual entró con las credenciales de desarrollador.
 export const verClienteDev = (numero) =>
   conSesion(`/api/portal/dev/cliente/${encodeURIComponent(String(numero).trim())}`)
+
+// --- Perfil del cliente ---
+export const actualizarPerfil = (datos) =>
+  conSesion('/api/portal/perfil', { method: 'PATCH', body: JSON.stringify(datos) })
+
+// --- Direcciones de envío ---
+export const misDirecciones = () => conSesion('/api/portal/direcciones')
+
+export const crearDireccion = (datos) =>
+  conSesion('/api/portal/direcciones', { method: 'POST', body: JSON.stringify(datos) })
+
+export const actualizarDireccion = (id, datos) =>
+  conSesion(`/api/portal/direcciones/${id}`, { method: 'PATCH', body: JSON.stringify(datos) })
+
+export const eliminarDireccion = (id) =>
+  conSesion(`/api/portal/direcciones/${id}`, { method: 'DELETE' })

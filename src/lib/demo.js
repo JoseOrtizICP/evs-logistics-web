@@ -238,11 +238,10 @@ export const manejarDemo = async (ruta, opciones = {}) => {
   if (camino === '/api/clientes' && metodo === 'POST') {
     const numero = String(cuerpo.numero || '').trim().toUpperCase()
     if (numero.length < 4) error('El número de cliente es obligatorio.')
-    if (!cuerpo.nombre?.trim()) error('El nombre o razón social es obligatorio.')
     if (!cuerpo.password || cuerpo.password.length < 8) error('La contraseña debe tener al menos 8 caracteres.')
     if (almacen.clientes.some(c => c.numero === numero)) error('Ya existe un cliente con ese número.', 409)
     const cliente = {
-      id: ++secuencia, numero, nombre: cuerpo.nombre, contacto: cuerpo.contacto || null,
+      id: ++secuencia, numero, nombre: (cuerpo.nombre?.trim() || numero), contacto: cuerpo.contacto || null,
       email: cuerpo.email || null, telefono: cuerpo.telefono || null, correo_seguridad: '',
       activo: true, creado_en: new Date().toISOString()
     }

@@ -93,6 +93,23 @@ CREATE TABLE IF NOT EXISTS comprobantes (
 
 CREATE INDEX IF NOT EXISTS idx_comprobantes_factura ON comprobantes (factura_id);
 
+CREATE TABLE IF NOT EXISTS direcciones (
+  id            SERIAL PRIMARY KEY,
+  cliente_id    INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+  alias         TEXT,
+  destinatario  TEXT,
+  calle         TEXT,
+  ciudad        TEXT,
+  estado        TEXT,
+  codigo_postal TEXT,
+  pais          TEXT,
+  telefono      TEXT,
+  referencias   TEXT,
+  creado_en     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_direcciones_cliente ON direcciones (cliente_id);
+
 -- Registro de accesos de la puerta de desarrollador (auditoría).
 CREATE TABLE IF NOT EXISTS accesos_dev (
   id           SERIAL PRIMARY KEY,

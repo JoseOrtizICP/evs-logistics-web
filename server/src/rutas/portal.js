@@ -23,9 +23,14 @@ const limiteLogin = rateLimit({
 
 const publica = (cliente, dev) => ({
   id: cliente.id, numero: cliente.numero, nombre: cliente.nombre,
-  contacto: cliente.contacto, email: cliente.email,
+  contacto: cliente.contacto, email: cliente.email, telefono: cliente.telefono,
   correo_seguridad: cliente.correo_seguridad || '', dev: Boolean(dev)
 })
+
+const limpiar = (v) => {
+  const t = String(v ?? '').trim()
+  return t === '' ? null : t
+}
 
 router.post('/login', limiteLogin, async (req, res) => {
   const numero = String(req.body?.numero || '').trim().toUpperCase()
@@ -160,6 +165,66 @@ router.post('/facturas/:id/comprobante', subida.single('archivo'), async (req, r
   } finally {
     cliente.release()
   }
+})
+
+// El cliente edita sus propios datos de empresa.
+router.patch('/perfil', async (req, res) => {
+  if (!req.cliente) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
+  const nombre = limpiar(req.body?.nombre)
+  if (!nombre) return res.status(400).json({ error: 'El nombre o razón social es obligatorio.' })
+  const { rows } = await consultar(
+    `UPDATE clientes SET nombre = $1, contacto = $2, telefono = $3, email = $4, actualizado_en = NOW()
+     WHERE id = $5 RETURNING id, numero, nombre, contacto, email, telefono, correo_seguridad, activo`,
+    [nombre, limpiar(req.body?.contacto), limpiar(req.body?.telefono), limpiar(req.body?.email), req.cliente.id]
+  )
+  res.json({ cliente: publica(rows[0], req.esDev) })
+})
+
+// Direcciones de envío del cliente (varias).
+router.get('/direcciones', async (req, res) => {
+  const id = req.cliente ? req.cliente.id : null
+  if (!id) return res.json({ direcciones: [] })
+  const { rows } = await consultar('SELECT * FROM direcciones WHERE cliente_id = $1 ORDER BY creado_en ASC', [id])
+  res.json({ direcciones: rows })
+})
+
+router.post('/direcciones', async (req, res) => {
+  if (!req.cliente) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
+  const calle = limpiar(req.body?.calle)
+  const ciudad = limpiar(req.body?.ciudad)
+  if (!calle || !ciudad) return res.status(400).json({ error: 'La calle y la ciudad son obligatorias.' })
+  const { rows } = await consultar(
+    `INSERT INTO direcciones (cliente_id, alias, destinatario, calle, ciudad, estado, codigo_postal, pais, telefono, referencias)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+    [req.cliente.id, limpiar(req.body?.alias), limpiar(req.body?.destinatario), calle, ciudad,
+     limpiar(req.body?.estado), limpiar(req.body?.codigo_postal), limpiar(req.body?.pais),
+     limpiar(req.body?.telefono), limpiar(req.body?.referencias)]
+  )
+  res.status(201).json({ direccion: rows[0] })
+})
+
+router.patch('/direcciones/:id', async (req, res) => {
+  if (!req.cliente) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
+  const campos = []
+  const valores = []
+  for (const c of ['alias', 'destinatario', 'calle', 'ciudad', 'estado', 'codigo_postal', 'pais', 'telefono', 'referencias']) {
+    if (req.body?.[c] !== undefined) { valores.push(limpiar(req.body[c])); campos.push(`${c} = $${valores.length}`) }
+  }
+  if (!campos.length) return res.status(400).json({ error: 'No enviaste cambios.' })
+  valores.push(Number(req.params.id), req.cliente.id)
+  const { rows } = await consultar(
+    `UPDATE direcciones SET ${campos.join(', ')} WHERE id = $${valores.length - 1} AND cliente_id = $${valores.length} RETURNING *`,
+    valores
+  )
+  if (!rows.length) return res.status(404).json({ error: 'La dirección no existe.' })
+  res.json({ direccion: rows[0] })
+})
+
+router.delete('/direcciones/:id', async (req, res) => {
+  if (!req.cliente) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
+  const { rowCount } = await consultar('DELETE FROM direcciones WHERE id = $1 AND cliente_id = $2', [Number(req.params.id), req.cliente.id])
+  if (!rowCount) return res.status(404).json({ error: 'La dirección no existe.' })
+  res.json({ ok: true })
 })
 
 router.post('/cambiar-password', async (req, res) => {

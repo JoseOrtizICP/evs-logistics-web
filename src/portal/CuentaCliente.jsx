@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FaTimes, FaShieldAlt, FaKey, FaEnvelopeOpenText, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'
-import { cambiarPasswordCliente, guardarCorreoSeguridad } from '../lib/apiPortal'
+import { FaTimes, FaShieldAlt, FaKey, FaEnvelopeOpenText, FaCheckCircle, FaExclamationCircle, FaBuilding, FaMapMarkerAlt, FaPlus, FaTrash, FaEdit } from 'react-icons/fa'
+import { useEffect } from 'react'
+import { cambiarPasswordCliente, guardarCorreoSeguridad, actualizarPerfil, misDirecciones, crearDireccion, actualizarDireccion, eliminarDireccion } from '../lib/apiPortal'
 import { C, panel, campo, rotulo, btn, apagado, foco } from './ui'
 
 const Aviso = ({ tipo, children }) => {
@@ -40,6 +41,42 @@ const Bloque = ({ icono: Icono, titulo, descripcion, children }) => (
   </section>
 )
 
+const FormDireccion = ({ inicial, onGuardar, onCancelar }) => {
+  const [d, setD] = useState({
+    alias: '', destinatario: '', calle: '', ciudad: '', estado: '',
+    codigo_postal: '', pais: 'México', telefono: '', referencias: '', ...inicial
+  })
+  const cambiar = (k) => (e) => setD(v => ({ ...v, [k]: e.target.value }))
+  const listo = d.calle.trim() && d.ciudad.trim()
+
+  const campoMini = { ...campo, padding: '10px 12px', fontSize: '14px' }
+
+  return (
+    <form onSubmit={e => { e.preventDefault(); if (listo) onGuardar(d) }}
+      style={{ background: 'rgba(0,0,0,0.04)', borderRadius: '10px', padding: '16px', border: `1px solid ${C.borde}` }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+        <input placeholder="Alias (ej. Bodega CDMX)" value={d.alias} onChange={cambiar('alias')} style={campoMini} {...foco} />
+        <input placeholder="Destinatario" value={d.destinatario} onChange={cambiar('destinatario')} style={campoMini} {...foco} />
+      </div>
+      <input placeholder="Calle y número *" value={d.calle} onChange={cambiar('calle')} style={{ ...campoMini, marginBottom: '10px' }} {...foco} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+        <input placeholder="Ciudad *" value={d.ciudad} onChange={cambiar('ciudad')} style={campoMini} {...foco} />
+        <input placeholder="Estado" value={d.estado} onChange={cambiar('estado')} style={campoMini} {...foco} />
+        <input placeholder="Código postal" value={d.codigo_postal} onChange={cambiar('codigo_postal')} style={campoMini} {...foco} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+        <input placeholder="País" value={d.pais} onChange={cambiar('pais')} style={campoMini} {...foco} />
+        <input placeholder="Teléfono" value={d.telefono} onChange={cambiar('telefono')} style={campoMini} {...foco} />
+      </div>
+      <input placeholder="Referencias (portón, horario…)" value={d.referencias} onChange={cambiar('referencias')} style={{ ...campoMini, marginBottom: '12px' }} {...foco} />
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+        <button type="button" onClick={onCancelar} style={{ ...btn.contorno, padding: '9px 16px', fontSize: '13px' }}>Cancelar</button>
+        <button type="submit" disabled={!listo} style={{ ...btn.primario, padding: '9px 16px', fontSize: '13px', ...(listo ? {} : apagado) }}>Guardar</button>
+      </div>
+    </form>
+  )
+}
+
 const CuentaCliente = ({ cliente, onCerrar, onActualizar }) => {
   // Cambio de contraseña
   const [pass, setPass] = useState({ actual: '', nueva: '', repetir: '' })
@@ -50,6 +87,66 @@ const CuentaCliente = ({ cliente, onCerrar, onActualizar }) => {
   const [correo, setCorreo] = useState(cliente.correo_seguridad || '')
   const [avisoCorreo, setAvisoCorreo] = useState(null)
   const [guardandoCorreo, setGuardandoCorreo] = useState(false)
+
+  // Datos de la empresa
+  const [perfil, setPerfil] = useState({
+    nombre: cliente.nombre || '', contacto: cliente.contacto || '',
+    telefono: cliente.telefono || '', email: cliente.email || ''
+  })
+  const [avisoPerfil, setAvisoPerfil] = useState(null)
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false)
+
+  // Direcciones de envío
+  const [direcciones, setDirecciones] = useState([])
+  const [editandoDir, setEditandoDir] = useState(null) // objeto en edición o {} para nueva
+  const [avisoDir, setAvisoDir] = useState(null)
+
+  useEffect(() => { misDirecciones().then(({ direcciones }) => setDirecciones(direcciones)).catch(() => {}) }, [])
+
+  const guardarPerfil = async (e) => {
+    e.preventDefault()
+    setAvisoPerfil(null)
+    if (!perfil.nombre.trim()) return setAvisoPerfil({ tipo: 'error', texto: 'El nombre o razón social es obligatorio.' })
+    setGuardandoPerfil(true)
+    try {
+      const { cliente: act } = await actualizarPerfil({
+        nombre: perfil.nombre.trim(), contacto: perfil.contacto.trim() || null,
+        telefono: perfil.telefono.trim() || null, email: perfil.email.trim() || null
+      })
+      setAvisoPerfil({ tipo: 'ok', texto: 'Datos actualizados.' })
+      if (onActualizar) onActualizar(act)
+    } catch (err) {
+      setAvisoPerfil({ tipo: 'error', texto: err.message })
+    } finally {
+      setGuardandoPerfil(false)
+    }
+  }
+
+  const guardarDireccion = async (datos) => {
+    setAvisoDir(null)
+    try {
+      if (datos.id) {
+        const { direccion } = await actualizarDireccion(datos.id, datos)
+        setDirecciones(ds => ds.map(d => (d.id === direccion.id ? direccion : d)))
+      } else {
+        const { direccion } = await crearDireccion(datos)
+        setDirecciones(ds => [...ds, direccion])
+      }
+      setEditandoDir(null)
+    } catch (err) {
+      setAvisoDir({ tipo: 'error', texto: err.message })
+    }
+  }
+
+  const borrarDireccion = async (id) => {
+    if (!window.confirm('¿Eliminar esta dirección?')) return
+    try {
+      await eliminarDireccion(id)
+      setDirecciones(ds => ds.filter(d => d.id !== id))
+    } catch (err) {
+      setAvisoDir({ tipo: 'error', texto: err.message })
+    }
+  }
 
   const cambiarPass = async (e) => {
     e.preventDefault()
@@ -111,6 +208,68 @@ const CuentaCliente = ({ cliente, onCerrar, onActualizar }) => {
             <FaTimes />
           </button>
         </div>
+
+        <Bloque icono={FaBuilding} titulo="Datos de mi empresa"
+          descripcion="Estos datos los usamos para tus envíos y tu facturación.">
+          <form onSubmit={guardarPerfil}>
+            <div style={{ display: 'grid', gap: '13px' }}>
+              <div>
+                <label htmlFor="pf-nombre" style={rotulo}>Nombre o razón social *</label>
+                <input id="pf-nombre" value={perfil.nombre} onChange={e => setPerfil(p => ({ ...p, nombre: e.target.value }))} style={campo} {...foco} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '13px' }}>
+                <div>
+                  <label htmlFor="pf-contacto" style={rotulo}>Persona de contacto</label>
+                  <input id="pf-contacto" value={perfil.contacto} onChange={e => setPerfil(p => ({ ...p, contacto: e.target.value }))} style={campo} {...foco} />
+                </div>
+                <div>
+                  <label htmlFor="pf-tel" style={rotulo}>Teléfono</label>
+                  <input id="pf-tel" value={perfil.telefono} onChange={e => setPerfil(p => ({ ...p, telefono: e.target.value }))} style={campo} {...foco} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="pf-email" style={rotulo}>Correo</label>
+                <input id="pf-email" type="email" value={perfil.email} onChange={e => setPerfil(p => ({ ...p, email: e.target.value }))} style={campo} {...foco} />
+              </div>
+            </div>
+            {avisoPerfil && <Aviso tipo={avisoPerfil.tipo}>{avisoPerfil.texto}</Aviso>}
+            <button type="submit" disabled={guardandoPerfil} style={{ ...btn.primario, marginTop: '16px', ...(guardandoPerfil ? apagado : {}) }}>
+              {guardandoPerfil ? 'Guardando…' : 'Guardar datos'}
+            </button>
+          </form>
+        </Bloque>
+
+        <Bloque icono={FaMapMarkerAlt} titulo="Direcciones de envío"
+          descripcion="Agrega las direcciones donde recibes tu carga.">
+          {direcciones.length > 0 && (
+            <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
+              {direcciones.map(d => (
+                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(0,0,0,0.04)', border: `1px solid ${C.borde}` }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: C.texto }}>{d.alias || d.ciudad}</p>
+                    <p style={{ fontSize: '13px', color: C.suave, lineHeight: 1.5, marginTop: '2px' }}>
+                      {[d.calle, d.ciudad, d.estado, d.codigo_postal, d.pais].filter(Boolean).join(', ')}
+                    </p>
+                    {d.referencias && <p style={{ fontSize: '12px', color: C.tenue, marginTop: '3px' }}>{d.referencias}</p>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                    <button type="button" onClick={() => setEditandoDir(d)} style={{ ...btn.texto, padding: '6px' }}><FaEdit /></button>
+                    <button type="button" onClick={() => borrarDireccion(d.id)} style={{ ...btn.texto, padding: '6px', color: C.rojoClaro }}><FaTrash style={{ fontSize: '13px' }} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {avisoDir && <Aviso tipo={avisoDir.tipo}>{avisoDir.texto}</Aviso>}
+          {editandoDir ? (
+            <FormDireccion inicial={editandoDir.id ? editandoDir : {}}
+              onGuardar={guardarDireccion} onCancelar={() => setEditandoDir(null)} />
+          ) : (
+            <button type="button" onClick={() => setEditandoDir({})} style={{ ...btn.neutro, marginTop: direcciones.length ? 0 : '4px' }}>
+              <FaPlus style={{ fontSize: '12px' }} /> Agregar dirección
+            </button>
+          )}
+        </Bloque>
 
         <Bloque icono={FaKey} titulo="Cambiar contraseña"
           descripcion="Usa una contraseña que no utilices en otros sitios.">

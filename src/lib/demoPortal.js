@@ -15,8 +15,14 @@ const cliente = {
   nombre: 'Comercializadora del Bajío S.A. de C.V.',
   contacto: 'Laura Méndez',
   email: 'laura.mendez@bajio.mx',
+  telefono: '55 1234 5678',
   correo_seguridad: ''
 }
+
+let secuenciaDir = 700
+let direcciones = [
+  { id: 1, alias: 'Bodega principal', destinatario: 'Almacén Bajío', calle: 'Av. López Mateos 1200', ciudad: 'Guadalajara', estado: 'Jalisco', codigo_postal: '44100', pais: 'México', telefono: '33 1122 3344', referencias: 'Portón azul, entre semana 8-18h' }
+]
 
 // Credenciales de la puerta de desarrollador SOLO para la demostración local.
 // En el servidor real la llave vive en variables de entorno de Railway, nunca
@@ -154,6 +160,31 @@ export const manejarDemoPortal = async (ruta, opciones = {}) => {
     ]
     factura.estatus = 'en_revision'
     return { factura }
+  }
+
+  if (camino === '/api/portal/perfil' && metodo === 'PATCH') {
+    if (!cuerpo?.nombre?.trim()) fallar('El nombre o razón social es obligatorio.')
+    Object.assign(cliente, {
+      nombre: cuerpo.nombre, contacto: cuerpo.contacto || null,
+      telefono: cuerpo.telefono || null, email: cuerpo.email || null
+    })
+    return { cliente: { ...cliente, dev: sesionDev } }
+  }
+
+  if (camino === '/api/portal/direcciones' && metodo === 'GET') return { direcciones }
+  if (camino === '/api/portal/direcciones' && metodo === 'POST') {
+    if (!cuerpo?.calle?.trim() || !cuerpo?.ciudad?.trim()) fallar('La calle y la ciudad son obligatorias.')
+    const direccion = { id: ++secuenciaDir, ...cuerpo }
+    direcciones.push(direccion)
+    return { direccion }
+  }
+  const dirUno = camino.match(/^\/api\/portal\/direcciones\/(\d+)$/)
+  if (dirUno) {
+    const id = Number(dirUno[1])
+    const dir = direcciones.find(d => d.id === id)
+    if (!dir) fallar('La dirección no existe.', 404)
+    if (metodo === 'PATCH') { Object.assign(dir, cuerpo); return { direccion: dir } }
+    if (metodo === 'DELETE') { direcciones = direcciones.filter(d => d.id !== id); return { ok: true } }
   }
 
   if (camino === '/api/portal/cambiar-password') return { ok: true }

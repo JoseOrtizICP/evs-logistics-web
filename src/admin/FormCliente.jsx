@@ -76,7 +76,7 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
     }
   }
 
-  const listo = datos.numero.trim() && datos.nombre.trim() && (editando || datos.password.length >= 8) && !guardando
+  const listo = datos.numero.trim() && (editando || datos.password.length >= 8) && !guardando
 
   return (
     <Modal titulo={editando ? 'Editar cliente' : 'Nuevo cliente'} onCerrar={onCerrar}>
@@ -105,7 +105,7 @@ const FormCliente = ({ cliente, onCerrar, onGuardado }) => {
             </p>
           </Campo>
 
-          <Campo id="cl-nombre" label="Nombre o razón social *">
+          <Campo id="cl-nombre" label="Nombre o razón social (lo puede completar el cliente)">
             <input id="cl-nombre" value={datos.nombre} onChange={cambiar('nombre')} style={input} {...enfoque} />
           </Campo>
 

@@ -56,11 +56,12 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const numero = String(req.body?.numero || '').trim().toUpperCase()
-  const nombre = limpiar(req.body?.nombre)
   const password = String(req.body?.password || '')
+  // El nombre es opcional: si no se captura, se usa el número como nombre
+  // provisional y el propio cliente lo completa desde su portal.
+  const nombre = limpiar(req.body?.nombre) || numero
 
   if (numero.length < 4) return res.status(400).json({ error: 'El número de cliente es obligatorio.' })
-  if (!nombre) return res.status(400).json({ error: 'El nombre o razón social es obligatorio.' })
   if (password.length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' })
 
   const { rows: existe } = await consultar('SELECT 1 FROM clientes WHERE numero = $1', [numero])
