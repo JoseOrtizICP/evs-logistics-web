@@ -108,6 +108,27 @@ router.patch('/:id', async (req, res) => {
   res.json({ cliente: rows[0] })
 })
 
+// Borrado definitivo de un cliente. Protege el historial: si tiene guías o
+// facturas ligadas NO se borra (para eso está "desactivar"), porque la tabla
+// facturas está en CASCADE y perderíamos ese historial de cobros.
+router.delete('/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'El cliente no existe.' })
+
+  const { rows: g } = await consultar('SELECT COUNT(*)::int AS n FROM guias WHERE cliente_id = $1', [id])
+  const { rows: f } = await consultar('SELECT COUNT(*)::int AS n FROM facturas WHERE cliente_id = $1', [id])
+  if (g[0].n || f[0].n) {
+    return res.status(409).json({
+      error: `No se puede borrar: el cliente tiene ${g[0].n} guía(s) y ${f[0].n} factura(s). Desactívalo para conservar su historial.`
+    })
+  }
+
+  // Sus direcciones se borran en cascada automáticamente.
+  const { rowCount } = await consultar('DELETE FROM clientes WHERE id = $1', [id])
+  if (!rowCount) return res.status(404).json({ error: 'El cliente no existe.' })
+  res.json({ ok: true })
+})
+
 router.post('/:id/password', async (req, res) => {
   const password = String(req.body?.password || '')
   if (password.length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' })

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { FaPlus, FaSearch, FaEdit, FaKey, FaUserSlash, FaUserCheck, FaUsers, FaCheck, FaCopy } from 'react-icons/fa'
-import { listarClientes, actualizarCliente, cambiarPasswordCliente } from '../lib/api'
+import { FaPlus, FaSearch, FaEdit, FaKey, FaUserSlash, FaUserCheck, FaUsers, FaCheck, FaCopy, FaTrash } from 'react-icons/fa'
+import { listarClientes, actualizarCliente, cambiarPasswordCliente, eliminarCliente } from '../lib/api'
 import { dinero } from './ui'
 import FormCliente from './FormCliente'
 import { tarjeta, input, boton, enfoque, deshabilitado, COLORES } from './ui'
@@ -59,7 +59,7 @@ const AvisoCredenciales = ({ numero, password, onCerrar }) => {
   )
 }
 
-const FilaCliente = ({ cliente, isMobile, onEditar, onPassword, onActivar }) => (
+const FilaCliente = ({ cliente, isMobile, onEditar, onPassword, onActivar, onEliminar }) => (
   <motion.div
     layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
     style={{
@@ -99,6 +99,10 @@ const FilaCliente = ({ cliente, isMobile, onEditar, onPassword, onActivar }) => 
         onClick={() => onActivar(cliente)}
         style={{ ...boton.fantasma, padding: '8px', color: cliente.activo ? COLORES.rojoClaro : COLORES.verdeClaro }}>
         {cliente.activo ? <FaUserSlash style={{ fontSize: '13px' }} /> : <FaUserCheck style={{ fontSize: '13px' }} />}
+      </button>
+      <button type="button" title="Borrar cliente" onClick={() => onEliminar(cliente)}
+        style={{ ...boton.fantasma, padding: '8px', color: COLORES.rojoClaro }}>
+        <FaTrash style={{ fontSize: '13px' }} />
       </button>
     </div>
   </motion.div>
@@ -162,6 +166,18 @@ const Clientes = ({ onAviso }) => {
     }
   }
 
+  const eliminar = async (cliente) => {
+    if (!window.confirm(`¿Borrar a ${cliente.numero} de forma definitiva? Esta acción no se puede deshacer.\n\n(Si el cliente tiene guías o facturas, no se borrará: mejor desactívalo.)`)) return
+    setError('')
+    try {
+      await eliminarCliente(cliente.id)
+      onAviso('Cliente borrado.')
+      cargar()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   return (
     <>
       <div style={{
@@ -204,7 +220,7 @@ const Clientes = ({ onAviso }) => {
             {clientes.map(cliente => (
               <FilaCliente key={cliente.id} cliente={cliente} isMobile={isMobile}
                 onEditar={c => { setEditando(c); setFormAbierto(true) }}
-                onPassword={restablecer} onActivar={activar} />
+                onPassword={restablecer} onActivar={activar} onEliminar={eliminar} />
             ))}
           </AnimatePresence>
         </div>

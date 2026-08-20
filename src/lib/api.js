@@ -79,6 +79,9 @@ export const actualizarCliente = (id, datos) =>
 export const cambiarPasswordCliente = (id, password) =>
   conSesion(`/api/clientes/${id}/password`, { method: 'POST', body: JSON.stringify({ password }) })
 
+export const eliminarCliente = (id) =>
+  conSesion(`/api/clientes/${id}`, { method: 'DELETE' })
+
 // --- Facturas (panel maestro) ---
 export const listarFacturas = ({ estatus = '', cliente = '' } = {}) => {
   const parametros = new URLSearchParams()
