@@ -64,6 +64,17 @@ const validarGuia = (cuerpo, { parcial = false } = {}) => {
   if (cuerpo.cliente_id !== undefined) datos.cliente_id = cuerpo.cliente_id ? Number(cuerpo.cliente_id) : null
   if (cuerpo.notas !== undefined) datos.notas = limpiar(cuerpo.notas)
 
+  // Datos de almacén / packing list.
+  if (cuerpo.descripcion !== undefined) datos.descripcion = limpiar(cuerpo.descripcion)
+  if (cuerpo.unidad !== undefined) datos.unidad = limpiar(cuerpo.unidad)
+  for (const campo of ['cantidad', 'peso_kg', 'volumen_cbm', 'bultos']) {
+    if (cuerpo[campo] === undefined) continue
+    if (cuerpo[campo] === null || cuerpo[campo] === '') { datos[campo] = null; continue }
+    const numero = Number(cuerpo[campo])
+    if (Number.isNaN(numero) || numero < 0) errores.push('El peso, volumen, cantidad y bultos deben ser números válidos.')
+    else datos[campo] = numero
+  }
+
   return { errores, datos }
 }
 
@@ -146,10 +157,13 @@ router.post('/', async (req, res) => {
     await cliente.query('BEGIN')
 
     const { rows } = await cliente.query(
-      `INSERT INTO guias (numero, cliente, cliente_id, origen, destino, servicio, fecha_estimada, estatus, notas, creada_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      `INSERT INTO guias (numero, cliente, cliente_id, origen, destino, servicio, fecha_estimada, estatus, notas,
+         descripcion, cantidad, unidad, peso_kg, volumen_cbm, bultos, creada_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
       [datos.numero, datos.cliente ?? null, datos.cliente_id ?? null, datos.origen, datos.destino, datos.servicio ?? null,
-       datos.fecha_estimada ?? null, estatus, datos.notas ?? null, req.usuario.id]
+       datos.fecha_estimada ?? null, estatus, datos.notas ?? null,
+       datos.descripcion ?? null, datos.cantidad ?? null, datos.unidad ?? null,
+       datos.peso_kg ?? null, datos.volumen_cbm ?? null, datos.bultos ?? null, req.usuario.id]
     )
 
     // Primer movimiento de la línea de tiempo, para que el cliente vea algo desde el inicio.

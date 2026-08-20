@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FaArrowLeft, FaMapMarkerAlt, FaRegCalendarAlt, FaBoxOpen, FaHistory, FaRoute } from 'react-icons/fa'
+import {
+  FaArrowLeft, FaMapMarkerAlt, FaRegCalendarAlt, FaBoxOpen, FaHistory, FaRoute,
+  FaClipboardList, FaBoxes, FaWeightHanging, FaCube, FaLayerGroup
+} from 'react-icons/fa'
 import useIsMobile from '../hooks/useIsMobile'
 import { detalleEnvio } from '../lib/apiPortal'
 import { buscarServicio, formatearFecha, formatearFechaHora } from '../data/estatus'
@@ -98,6 +101,22 @@ const DetalleEnvio = ({ envioId, onVolver }) => {
               />
               {buscarServicio(datos.envio.servicio) && (
                 <Dato icono={FaBoxOpen} etiqueta="Servicio" valor={buscarServicio(datos.envio.servicio)} />
+              )}
+              {datos.envio.descripcion && (
+                <Dato icono={FaClipboardList} etiqueta="Mercancía" valor={datos.envio.descripcion} />
+              )}
+              {datos.envio.cantidad != null && (
+                <Dato icono={FaBoxes} etiqueta="Cantidad"
+                  valor={`${Number(datos.envio.cantidad)} ${datos.envio.unidad || ''}`.trim()} />
+              )}
+              {datos.envio.bultos != null && (
+                <Dato icono={FaLayerGroup} etiqueta="Bultos / tarimas" valor={String(Number(datos.envio.bultos))} />
+              )}
+              {datos.envio.peso_kg != null && (
+                <Dato icono={FaWeightHanging} etiqueta="Peso" valor={`${Number(datos.envio.peso_kg)} kg`} />
+              )}
+              {datos.envio.volumen_cbm != null && (
+                <Dato icono={FaCube} etiqueta="Volumen" valor={`${Number(datos.envio.volumen_cbm)} CBM`} />
               )}
             </div>
           </div>

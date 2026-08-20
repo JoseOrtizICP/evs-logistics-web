@@ -100,7 +100,8 @@ router.get('/envios/:id', async (req, res) => {
   const envioId = Number(req.params.id)
   if (!Number.isInteger(envioId)) return res.status(404).json({ error: 'El envío no existe.' })
   const { rows } = await consultar(
-    `SELECT id, numero, origen, destino, servicio, fecha_estimada, estatus, actualizado_en
+    `SELECT id, numero, origen, destino, servicio, fecha_estimada, estatus, actualizado_en,
+            descripcion, cantidad, unidad, peso_kg, volumen_cbm, bultos
      FROM guias WHERE id = $1`, [envioId]
   )
   if (!rows.length) return res.status(404).json({ error: 'El envío no existe.' })
