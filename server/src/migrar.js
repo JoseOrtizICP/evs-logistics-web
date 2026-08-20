@@ -199,6 +199,7 @@ const sembrarClientePrueba = async () => {
 const ALTERACIONES = `
 ALTER TABLE guias ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_guias_cliente ON guias (cliente_id);
+ALTER TABLE facturas ADD COLUMN IF NOT EXISTS pago_referencia TEXT;
 `
 
 export const migrar = async () => {

@@ -5,7 +5,7 @@ import {
   FaTimes, FaPaperclip, FaExclamationCircle, FaWhatsapp
 } from 'react-icons/fa'
 import useIsMobile from '../hooks/useIsMobile'
-import { misFacturas, subirComprobante } from '../lib/apiPortal'
+import { misFacturas, subirComprobante, pagarFactura } from '../lib/apiPortal'
 import { formatearFecha, formatearFechaHora } from '../data/estatus'
 import { C, panel, campo, rotulo, btn, apagado, foco, TONO_FACTURA, dinero } from './ui'
 
@@ -184,7 +184,7 @@ const ModalComprobante = ({ factura, onCerrar, onSubido }) => {
   )
 }
 
-const FilaFactura = ({ factura, isMobile, pagoEnLinea, onSubir, indice }) => {
+const FilaFactura = ({ factura, isMobile, pagoEnLinea, onSubir, onPagar, pagando, indice }) => {
   const tono = TONO_FACTURA[factura.estatus] || TONO_FACTURA.pendiente
   const porPagar = factura.estatus === 'pendiente' || factura.estatus === 'vencida'
 
@@ -237,8 +237,9 @@ const FilaFactura = ({ factura, isMobile, pagoEnLinea, onSubir, indice }) => {
           {porPagar && (
             <div style={{ display: 'flex', gap: '8px' }}>
               {pagoEnLinea && (
-                <button type="button" style={{ ...btn.primario, padding: '10px 16px', fontSize: '13px' }}>
-                  <FaCreditCard style={{ fontSize: '12px' }} /> Pagar
+                <button type="button" onClick={() => onPagar(factura)} disabled={pagando}
+                  style={{ ...btn.primario, padding: '10px 16px', fontSize: '13px', ...(pagando ? apagado : {}) }}>
+                  <FaCreditCard style={{ fontSize: '12px' }} /> {pagando ? 'Abriendo…' : 'Pagar'}
                 </button>
               )}
               <button type="button" onClick={() => onSubir(factura)}
@@ -259,6 +260,7 @@ const Pagos = () => {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [facturaSubiendo, setFacturaSubiendo] = useState(null)
+  const [pagandoId, setPagandoId] = useState(null)
   const [aviso, setAviso] = useState('')
 
   const cargar = () => {
@@ -270,6 +272,30 @@ const Pagos = () => {
   }
 
   useEffect(cargar, [])
+
+  // Redirige al cliente a la página de pago de Stripe para una factura.
+  const pagar = (factura) => {
+    setPagandoId(factura.id)
+    pagarFactura(factura.id)
+      .then(({ url }) => { window.location.href = url })
+      .catch(err => {
+        setAviso(err.message || 'No pudimos abrir el pago. Inténtalo de nuevo.')
+        setPagandoId(null)
+      })
+  }
+
+  // Al volver de Stripe, la URL trae ?pago=exito | cancelado. Mostramos aviso y
+  // refrescamos el estado de cuenta (el webhook ya marcó la factura pagada).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const pago = params.get('pago')
+    if (!pago) return
+    if (pago === 'exito') setAviso('¡Pago recibido! Estamos actualizando tu factura.')
+    else if (pago === 'cancelado') setAviso('Pago cancelado. Tu factura sigue pendiente.')
+    // Limpia el parámetro de la URL sin recargar.
+    const limpia = window.location.pathname + window.location.hash
+    window.history.replaceState({}, '', limpia)
+  }, [])
 
   useEffect(() => {
     if (!aviso) return
@@ -317,6 +343,8 @@ const Pagos = () => {
                   key={factura.id} factura={factura} isMobile={isMobile} indice={i}
                   pagoEnLinea={datos.pago_en_linea}
                   onSubir={setFacturaSubiendo}
+                  onPagar={pagar}
+                  pagando={pagandoId === factura.id}
                 />
               ))}
             </div>

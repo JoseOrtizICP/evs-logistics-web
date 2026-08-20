@@ -8,6 +8,7 @@ import rutasRastreo from './rutas/rastreo.js'
 import rutasClientes from './rutas/clientes.js'
 import rutasFacturas from './rutas/facturas.js'
 import rutasPortal from './rutas/portal.js'
+import { manejarWebhookStripe } from './rutas/stripe.js'
 import { asegurarCarpeta } from './almacenamiento.js'
 
 const app = express()
@@ -30,6 +31,10 @@ app.use(cors({
   }
 }))
 
+// El webhook de Stripe necesita el cuerpo CRUDO para verificar la firma, así
+// que va ANTES de express.json y con su propio parser.
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), manejarWebhookStripe)
+
 app.use(express.json({ limit: '100kb' }))
 
 app.get('/api/salud', (_req, res) => res.json({ ok: true, servicio: 'evs-tracking-api' }))
@@ -45,11 +50,27 @@ app.use((_req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }))
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
-  console.error('[EVS API]', err)
-  const mensaje = err?.message === 'Origen no permitido por CORS.'
-    ? err.message
-    : 'Ocurrió un error en el servidor. Inténtalo de nuevo.'
-  res.status(500).json({ error: mensaje })
+  // Errores de entrada conocidos: responden con su código real, no con 500.
+  let estado = Number(err?.status || err?.statusCode) || 500
+  let mensaje = 'Ocurrió un error en el servidor. Inténtalo de nuevo.'
+
+  if (err?.message === 'Origen no permitido por CORS.') {
+    estado = 403
+    mensaje = err.message
+  } else if (err?.type === 'entity.too.large' || err?.code === 'LIMIT_FILE_SIZE') {
+    estado = 413
+    mensaje = 'El contenido enviado es demasiado grande.'
+  } else if (err?.type === 'entity.parse.failed' || err instanceof SyntaxError) {
+    estado = 400
+    mensaje = 'El formato de los datos no es válido.'
+  } else if (estado >= 400 && estado < 500) {
+    mensaje = err?.message || 'La solicitud no es válida.'
+  }
+
+  // Solo los errores de servidor (5xx) son fallos nuestros que hay que registrar.
+  if (estado >= 500) console.error('[EVS API]', err)
+
+  res.status(estado).json({ error: mensaje })
 })
 
 const puerto = process.env.PORT || 3001

@@ -45,9 +45,11 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'El cliente no existe.' })
   const { rows } = await consultar(
     'SELECT id, numero, nombre, contacto, email, telefono, correo_seguridad, activo, creado_en FROM clientes WHERE id = $1',
-    [Number(req.params.id)]
+    [id]
   )
   if (!rows.length) return res.status(404).json({ error: 'El cliente no existe.' })
   const { rows: facturas } = await consultar('SELECT * FROM facturas WHERE cliente_id = $1 ORDER BY fecha_emision DESC', [rows[0].id])
@@ -68,13 +70,19 @@ router.post('/', async (req, res) => {
   if (existe.length) return res.status(409).json({ error: 'Ya existe un cliente con ese número.' })
 
   const hash = await bcrypt.hash(password, 12)
-  const { rows } = await consultar(
-    `INSERT INTO clientes (numero, nombre, contacto, email, telefono, password_hash, creado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)
-     RETURNING id, numero, nombre, contacto, email, telefono, activo, creado_en`,
-    [numero, nombre, limpiar(req.body?.contacto), limpiar(req.body?.email), limpiar(req.body?.telefono), hash, req.usuario.id]
-  )
-  res.status(201).json({ cliente: rows[0] })
+  try {
+    const { rows } = await consultar(
+      `INSERT INTO clientes (numero, nombre, contacto, email, telefono, password_hash, creado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       RETURNING id, numero, nombre, contacto, email, telefono, activo, creado_en`,
+      [numero, nombre, limpiar(req.body?.contacto), limpiar(req.body?.email), limpiar(req.body?.telefono), hash, req.usuario.id]
+    )
+    res.status(201).json({ cliente: rows[0] })
+  } catch (err) {
+    // Carrera entre dos altas del mismo número: se responde 409, no 500.
+    if (err?.code === '23505') return res.status(409).json({ error: 'Ya existe un cliente con ese número.' })
+    throw err
+  }
 })
 
 router.patch('/:id', async (req, res) => {
@@ -87,7 +95,9 @@ router.patch('/:id', async (req, res) => {
     }
   }
   if (!campos.length) return res.status(400).json({ error: 'No enviaste cambios.' })
-  valores.push(Number(req.params.id))
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'El cliente no existe.' })
+  valores.push(id)
   const { rows } = await consultar(
     `UPDATE clientes SET ${campos.join(', ')}, actualizado_en = NOW()
      WHERE id = $${valores.length}
@@ -101,8 +111,10 @@ router.patch('/:id', async (req, res) => {
 router.post('/:id/password', async (req, res) => {
   const password = String(req.body?.password || '')
   if (password.length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' })
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'El cliente no existe.' })
   const hash = await bcrypt.hash(password, 12)
-  const { rowCount } = await consultar('UPDATE clientes SET password_hash = $1, actualizado_en = NOW() WHERE id = $2', [hash, Number(req.params.id)])
+  const { rowCount } = await consultar('UPDATE clientes SET password_hash = $1, actualizado_en = NOW() WHERE id = $2', [hash, id])
   if (!rowCount) return res.status(404).json({ error: 'El cliente no existe.' })
   res.json({ ok: true })
 })

@@ -119,7 +119,9 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
-  const { rows } = await consultar('SELECT * FROM guias WHERE id = $1', [Number(req.params.id)])
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'La guía no existe.' })
+  const { rows } = await consultar('SELECT * FROM guias WHERE id = $1', [id])
   if (!rows.length) return res.status(404).json({ error: 'La guía no existe.' })
 
   const { rows: eventos } = await consultar(
@@ -161,6 +163,9 @@ router.post('/', async (req, res) => {
     res.status(201).json({ guia: rows[0] })
   } catch (err) {
     await cliente.query('ROLLBACK')
+    // Carrera: dos altas simultáneas del mismo número pasan la verificación previa
+    // y una choca contra el índice único. Se responde 409, no 500.
+    if (err?.code === '23505') return res.status(409).json({ error: 'Ya existe una guía con ese número.' })
     throw err
   } finally {
     cliente.release()
@@ -169,6 +174,7 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'La guía no existe.' })
   const { errores, datos } = validarGuia(req.body, { parcial: true })
   if (errores.length) return res.status(400).json({ error: errores[0], errores })
 
@@ -195,7 +201,9 @@ router.patch('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  const { rowCount } = await consultar('DELETE FROM guias WHERE id = $1', [Number(req.params.id)])
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'La guía no existe.' })
+  const { rowCount } = await consultar('DELETE FROM guias WHERE id = $1', [id])
   if (!rowCount) return res.status(404).json({ error: 'La guía no existe.' })
   res.json({ ok: true })
 })
@@ -204,6 +212,7 @@ router.delete('/:id', async (req, res) => {
 
 router.post('/:id/eventos', async (req, res) => {
   const guiaId = Number(req.params.id)
+  if (!Number.isInteger(guiaId)) return res.status(404).json({ error: 'La guía no existe.' })
   const estatus = limpiar(req.body?.estatus)
   const descripcion = limpiar(req.body?.descripcion)
   const ubicacion = limpiar(req.body?.ubicacion)
@@ -257,10 +266,14 @@ router.post('/:id/eventos', async (req, res) => {
 
 router.delete('/:id/eventos/:eventoId', async (req, res) => {
   const guiaId = Number(req.params.id)
+  const eventoId = Number(req.params.eventoId)
+  if (!Number.isInteger(guiaId) || !Number.isInteger(eventoId)) {
+    return res.status(404).json({ error: 'El movimiento no existe.' })
+  }
 
   const { rowCount } = await consultar(
     'DELETE FROM eventos WHERE id = $1 AND guia_id = $2',
-    [Number(req.params.eventoId), guiaId]
+    [eventoId, guiaId]
   )
 
   if (!rowCount) return res.status(404).json({ error: 'El movimiento no existe.' })

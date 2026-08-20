@@ -9,6 +9,7 @@ import { routerAsincrono } from '../asincrono.js'
 import { consultar, pool } from '../db.js'
 import { firmarTokenCliente, firmarTokenDev, requiereCliente } from '../authPortal.js'
 import { CARPETA_ARCHIVOS, TIPOS_PERMITIDOS, TAMANO_MAXIMO } from '../almacenamiento.js'
+import { stripe, stripeHabilitado, PORTAL_URL } from '../stripe.js'
 
 const router = routerAsincrono(Router())
 
@@ -96,15 +97,17 @@ router.get('/envios', async (req, res) => {
 
 router.get('/envios/:id', async (req, res) => {
   const id = clienteActivo(req)
+  const envioId = Number(req.params.id)
+  if (!Number.isInteger(envioId)) return res.status(404).json({ error: 'El envío no existe.' })
   const { rows } = await consultar(
     `SELECT id, numero, origen, destino, servicio, fecha_estimada, estatus, actualizado_en
-     FROM guias WHERE id = $1`, [Number(req.params.id)]
+     FROM guias WHERE id = $1`, [envioId]
   )
   if (!rows.length) return res.status(404).json({ error: 'El envío no existe.' })
   const { rows: pertenece } = await consultar(
     `SELECT 1 FROM guias WHERE id = $2 AND cliente_id = $1
      UNION SELECT 1 FROM facturas WHERE cliente_id = $1 AND guia_numero = $3 LIMIT 1`,
-    [id, Number(req.params.id), rows[0].numero]
+    [id, envioId, rows[0].numero]
   )
   if (!pertenece.length && !req.esDev) return res.status(403).json({ error: 'Este envío no es tuyo.' })
   const { rows: eventos } = await consultar(
@@ -116,7 +119,7 @@ router.get('/envios/:id', async (req, res) => {
 
 router.get('/facturas', async (req, res) => {
   const id = clienteActivo(req)
-  if (!id) return res.json({ facturas: [], saldo: 0, moneda: 'MXN', pago_en_linea: false })
+  if (!id) return res.json({ facturas: [], saldo: 0, moneda: 'MXN', pago_en_linea: stripeHabilitado })
   const { rows } = await consultar('SELECT * FROM facturas WHERE cliente_id = $1 ORDER BY fecha_emision DESC', [id])
   const ids = rows.map(f => f.id)
   let porFactura = {}
@@ -128,7 +131,53 @@ router.get('/facturas', async (req, res) => {
   }
   const facturas = rows.map(f => ({ ...f, comprobantes: porFactura[f.id] || [] }))
   const saldo = facturas.filter(f => f.estatus === 'pendiente' || f.estatus === 'vencida').reduce((t, f) => t + Number(f.monto), 0)
-  res.json({ facturas, saldo, moneda: 'MXN', pago_en_linea: false })
+  res.json({ facturas, saldo, moneda: 'MXN', pago_en_linea: stripeHabilitado })
+})
+
+// Pago con tarjeta vía Stripe Checkout. Crea una sesión de pago para la factura
+// y devuelve la URL a la que el portal redirige al cliente. Los datos de la
+// tarjeta los captura Stripe en su propia página (nunca tocan este servidor).
+router.post('/facturas/:id/pagar', async (req, res) => {
+  if (!stripeHabilitado) {
+    return res.status(503).json({ error: 'El pago con tarjeta no está disponible por el momento.' })
+  }
+  const clienteId = req.cliente ? req.cliente.id : null
+  if (!clienteId) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
+
+  const facturaId = Number(req.params.id)
+  if (!Number.isInteger(facturaId)) return res.status(404).json({ error: 'La factura no existe.' })
+
+  const { rows } = await consultar(
+    'SELECT id, folio, concepto, monto, moneda, estatus FROM facturas WHERE id = $1 AND cliente_id = $2',
+    [facturaId, clienteId]
+  )
+  const factura = rows[0]
+  if (!factura) return res.status(404).json({ error: 'La factura no existe.' })
+  if (factura.estatus === 'pagada') return res.status(409).json({ error: 'Esta factura ya está pagada.' })
+
+  const moneda = (factura.moneda || 'MXN').toLowerCase()
+  const montoCentavos = Math.round(Number(factura.monto) * 100) // Stripe usa la unidad mínima.
+  if (!(montoCentavos > 0)) return res.status(400).json({ error: 'El monto de la factura no es válido.' })
+
+  const sesion = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{
+      quantity: 1,
+      price_data: {
+        currency: moneda,
+        unit_amount: montoCentavos,
+        product_data: {
+          name: `Factura ${factura.folio || factura.id}`,
+          description: factura.concepto || 'Servicios logísticos EVS'
+        }
+      }
+    }],
+    metadata: { factura_id: String(factura.id), cliente_id: String(clienteId), folio: factura.folio || '' },
+    success_url: `${PORTAL_URL}?pago=exito&factura=${encodeURIComponent(factura.folio || factura.id)}`,
+    cancel_url: `${PORTAL_URL}?pago=cancelado`
+  })
+
+  res.json({ url: sesion.url })
 })
 
 // Subida de comprobante de pago.
@@ -141,6 +190,7 @@ const subida = multer({
 router.post('/facturas/:id/comprobante', subida.single('archivo'), async (req, res) => {
   const id = clienteActivo(req)
   const facturaId = Number(req.params.id)
+  if (!Number.isInteger(facturaId)) return res.status(404).json({ error: 'La factura no existe.' })
   if (!req.file) return res.status(400).json({ error: 'Selecciona un archivo PDF, JPG o PNG (máx. 8 MB).' })
 
   const { rows } = await consultar('SELECT id FROM facturas WHERE id = $1 AND cliente_id = $2', [facturaId, id])
@@ -214,7 +264,9 @@ router.patch('/direcciones/:id', async (req, res) => {
     if (req.body?.[c] !== undefined) { valores.push(limpiar(req.body[c])); campos.push(`${c} = $${valores.length}`) }
   }
   if (!campos.length) return res.status(400).json({ error: 'No enviaste cambios.' })
-  valores.push(Number(req.params.id), req.cliente.id)
+  const dirId = Number(req.params.id)
+  if (!Number.isInteger(dirId)) return res.status(404).json({ error: 'La dirección no existe.' })
+  valores.push(dirId, req.cliente.id)
   const { rows } = await consultar(
     `UPDATE direcciones SET ${campos.join(', ')} WHERE id = $${valores.length - 1} AND cliente_id = $${valores.length} RETURNING *`,
     valores
@@ -225,7 +277,9 @@ router.patch('/direcciones/:id', async (req, res) => {
 
 router.delete('/direcciones/:id', async (req, res) => {
   if (!req.cliente) return res.status(400).json({ error: 'No disponible en modo desarrollador.' })
-  const { rowCount } = await consultar('DELETE FROM direcciones WHERE id = $1 AND cliente_id = $2', [Number(req.params.id), req.cliente.id])
+  const dirId = Number(req.params.id)
+  if (!Number.isInteger(dirId)) return res.status(404).json({ error: 'La dirección no existe.' })
+  const { rowCount } = await consultar('DELETE FROM direcciones WHERE id = $1 AND cliente_id = $2', [dirId, req.cliente.id])
   if (!rowCount) return res.status(404).json({ error: 'La dirección no existe.' })
   res.json({ ok: true })
 })

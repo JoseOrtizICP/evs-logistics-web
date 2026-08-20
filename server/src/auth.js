@@ -12,7 +12,7 @@ if (!SECRETO || SECRETO.length < 24) {
 const DURACION = process.env.JWT_DURACION || '12h'
 
 export const firmarToken = (usuario) =>
-  jwt.sign({ sub: usuario.id, email: usuario.email }, SECRETO, { expiresIn: DURACION })
+  jwt.sign({ sub: usuario.id, email: usuario.email, tipo: 'staff' }, SECRETO, { expiresIn: DURACION })
 
 // Middleware: exige un token válido y carga el usuario en req.usuario.
 export const requiereSesion = async (req, res, next) => {
@@ -28,6 +28,14 @@ export const requiereSesion = async (req, res, next) => {
     datos = jwt.verify(token, SECRETO)
   } catch {
     return res.status(401).json({ error: 'Tu sesión expiró. Inicia sesión de nuevo.' })
+  }
+
+  // Los tokens del portal de clientes (tipo 'cliente') NUNCA valen para el panel
+  // de administración, aunque su `sub` coincida con el id de un usuario del staff.
+  // Sin este candado, un cliente cuyo id coincidiera con el de un admin podría
+  // escalar privilegios usando su propia sesión del portal.
+  if (datos.tipo && datos.tipo !== 'staff') {
+    return res.status(401).json({ error: 'Esta sesión no es válida para el panel.' })
   }
 
   // La consulta va fuera del try: un fallo de base de datos es un error del

@@ -27,6 +27,11 @@ export const subirComprobante = (facturaId, archivo, nota = '') => {
   return conSesion(`/api/portal/facturas/${facturaId}/comprobante`, { method: 'POST', body: datos })
 }
 
+// Pago con tarjeta: pide a la API una sesión de Stripe Checkout y devuelve la
+// URL a la que el portal debe redirigir al cliente para pagar.
+export const pagarFactura = (facturaId) =>
+  conSesion(`/api/portal/facturas/${facturaId}/pagar`, { method: 'POST' })
+
 export const cambiarPasswordCliente = (actual, nueva) =>
   conSesion('/api/portal/cambiar-password', { method: 'POST', body: JSON.stringify({ actual, nueva }) })
 

@@ -79,7 +79,9 @@ router.patch('/:id', async (req, res) => {
   if (req.body?.monto !== undefined) { valores.push(Number(req.body.monto)); campos.push(`monto = $${valores.length}`) }
   if (req.body?.fecha_vencimiento !== undefined) { valores.push(limpiar(req.body.fecha_vencimiento)); campos.push(`fecha_vencimiento = $${valores.length}`) }
   if (!campos.length) return res.status(400).json({ error: 'No enviaste cambios.' })
-  valores.push(Number(req.params.id))
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'La factura no existe.' })
+  valores.push(id)
   const { rows } = await consultar(
     `UPDATE facturas SET ${campos.join(', ')}, actualizado_en = NOW() WHERE id = $${valores.length} RETURNING *`,
     valores
@@ -89,7 +91,9 @@ router.patch('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  const { rowCount } = await consultar('DELETE FROM facturas WHERE id = $1', [Number(req.params.id)])
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id)) return res.status(404).json({ error: 'La factura no existe.' })
+  const { rowCount } = await consultar('DELETE FROM facturas WHERE id = $1', [id])
   if (!rowCount) return res.status(404).json({ error: 'La factura no existe.' })
   res.json({ ok: true })
 })
