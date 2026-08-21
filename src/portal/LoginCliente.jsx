@@ -92,7 +92,7 @@ const LoginCliente = ({ onEntrar }) => {
           <div style={{ marginBottom: '18px' }}>
             <label htmlFor="cliente-numero" style={rotulo}>Número de cliente</label>
             <input
-              id="cliente-numero" value={numero} autoComplete="username" spellCheck="false"
+              id="cliente-numero" name="numero-cliente" value={numero} autoComplete="off" spellCheck="false"
               placeholder="EVS-C-0000"
               onChange={e => setNumero(e.target.value)}
               style={{ ...campo, letterSpacing: '0.5px' }} {...foco}
@@ -102,7 +102,7 @@ const LoginCliente = ({ onEntrar }) => {
           <div style={{ marginBottom: '24px' }}>
             <label htmlFor="cliente-password" style={rotulo}>Contraseña</label>
             <input
-              id="cliente-password" type="password" value={password} autoComplete="current-password"
+              id="cliente-password" name="clave-cliente" type="password" value={password} autoComplete="new-password"
               onChange={e => setPassword(e.target.value)}
               style={campo} {...foco}
             />
