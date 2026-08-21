@@ -22,6 +22,12 @@ const limiteLogin = rateLimit({
   message: { error: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' }
 })
 
+// Límite de subida de comprobantes: evita que un cliente sature el almacenamiento.
+const limiteComprobante = rateLimit({
+  windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Demasiadas subidas seguidas. Espera unos minutos e inténtalo de nuevo.' }
+})
+
 const publica = (cliente, dev) => ({
   id: cliente.id, numero: cliente.numero, nombre: cliente.nombre,
   contacto: cliente.contacto, email: cliente.email, telefono: cliente.telefono,
@@ -110,7 +116,7 @@ router.get('/envios/:id', async (req, res) => {
      UNION SELECT 1 FROM facturas WHERE cliente_id = $1 AND guia_numero = $3 LIMIT 1`,
     [id, envioId, rows[0].numero]
   )
-  if (!pertenece.length && !req.esDev) return res.status(403).json({ error: 'Este envío no es tuyo.' })
+  if (!pertenece.length && !req.esDev) return res.status(404).json({ error: 'El envío no existe.' })
   const { rows: eventos } = await consultar(
     'SELECT estatus, descripcion, ubicacion, ocurrido_en FROM eventos WHERE guia_id = $1 ORDER BY ocurrido_en DESC, id DESC',
     [rows[0].id]
@@ -121,7 +127,10 @@ router.get('/envios/:id', async (req, res) => {
 router.get('/facturas', async (req, res) => {
   const id = clienteActivo(req)
   if (!id) return res.json({ facturas: [], saldo: 0, moneda: 'MXN', pago_en_linea: stripeHabilitado })
-  const { rows } = await consultar('SELECT * FROM facturas WHERE cliente_id = $1 ORDER BY fecha_emision DESC', [id])
+  const { rows } = await consultar(
+    `SELECT id, folio, concepto, monto, moneda, fecha_emision, fecha_vencimiento,
+            estatus, guia_numero, creado_en
+     FROM facturas WHERE cliente_id = $1 ORDER BY fecha_emision DESC`, [id])
   const ids = rows.map(f => f.id)
   let porFactura = {}
   if (ids.length) {
@@ -188,14 +197,16 @@ const subida = multer({
   fileFilter: (_req, file, cb) => cb(null, Boolean(TIPOS_PERMITIDOS[file.mimetype]))
 })
 
-router.post('/facturas/:id/comprobante', subida.single('archivo'), async (req, res) => {
+router.post('/facturas/:id/comprobante', limiteComprobante, subida.single('archivo'), async (req, res) => {
   const id = clienteActivo(req)
   const facturaId = Number(req.params.id)
   if (!Number.isInteger(facturaId)) return res.status(404).json({ error: 'La factura no existe.' })
   if (!req.file) return res.status(400).json({ error: 'Selecciona un archivo PDF, JPG o PNG (máx. 8 MB).' })
 
+  // La factura debe ser del cliente de la sesión. El modo desarrollador es de
+  // solo lectura: no adjunta comprobantes ni cambia estatus de facturas ajenas.
   const { rows } = await consultar('SELECT id FROM facturas WHERE id = $1 AND cliente_id = $2', [facturaId, id])
-  if (!rows.length && !req.esDev) return res.status(404).json({ error: 'La factura no existe.' })
+  if (!rows.length) return res.status(404).json({ error: 'La factura no existe.' })
 
   const extension = TIPOS_PERMITIDOS[req.file.mimetype]
   const nombreGuardado = `comprobante-${facturaId}-${randomUUID()}${extension}`

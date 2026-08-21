@@ -25,7 +25,7 @@ export const requiereSesion = async (req, res, next) => {
 
   let datos
   try {
-    datos = jwt.verify(token, SECRETO)
+    datos = jwt.verify(token, SECRETO, { algorithms: ['HS256'] })
   } catch {
     return res.status(401).json({ error: 'Tu sesión expiró. Inicia sesión de nuevo.' })
   }

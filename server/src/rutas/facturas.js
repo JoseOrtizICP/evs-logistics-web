@@ -76,7 +76,11 @@ router.patch('/:id', async (req, res) => {
     valores.push(req.body.estatus); campos.push(`estatus = $${valores.length}`)
   }
   if (req.body?.concepto !== undefined) { valores.push(limpiar(req.body.concepto)); campos.push(`concepto = $${valores.length}`) }
-  if (req.body?.monto !== undefined) { valores.push(Number(req.body.monto)); campos.push(`monto = $${valores.length}`) }
+  if (req.body?.monto !== undefined) {
+    const monto = Number(req.body.monto)
+    if (Number.isNaN(monto) || monto < 0) return res.status(400).json({ error: 'El monto no es válido.' })
+    valores.push(monto); campos.push(`monto = $${valores.length}`)
+  }
   if (req.body?.fecha_vencimiento !== undefined) { valores.push(limpiar(req.body.fecha_vencimiento)); campos.push(`fecha_vencimiento = $${valores.length}`) }
   if (!campos.length) return res.status(400).json({ error: 'No enviaste cambios.' })
   const id = Number(req.params.id)
