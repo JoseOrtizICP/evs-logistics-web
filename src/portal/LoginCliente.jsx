@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaArrowLeft, FaExclamationCircle, FaWhatsapp } from 'react-icons/fa'
 import logoWhite from '../assets/logo-white.png'
 import useIsMobile from '../hooks/useIsMobile'
-import Fondo from './Fondo'
 import { entrar, guardarTokenCliente, MODO_DEMO } from '../lib/apiPortal'
 import { TEMA_OSCURO, apagado } from './ui'
 
@@ -17,20 +16,6 @@ const { C, panel, campo, rotulo, btn, foco } = TEMA_OSCURO
 const LoginCliente = ({ onEntrar }) => {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
-  // Puerta discreta al panel de administración: 3 clics rápidos en el logo
-  // llevan a /admin. No hay nada visible; solo el equipo conoce el gesto.
-  const golpesLogo = useRef(0)
-  const golpeTimer = useRef(null)
-  const tocarLogo = () => {
-    golpesLogo.current += 1
-    clearTimeout(golpeTimer.current)
-    if (golpesLogo.current >= 3) {
-      golpesLogo.current = 0
-      navigate('/admin')
-      return
-    }
-    golpeTimer.current = setTimeout(() => { golpesLogo.current = 0 }, 1200)
-  }
   const [numero, setNumero] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -55,11 +40,12 @@ const LoginCliente = ({ onEntrar }) => {
 
   return (
     <div style={{
-      minHeight: '100vh', background: C.fondo, display: 'flex',
-      alignItems: 'center', justifyContent: 'center', padding: isMobile ? '24px 16px' : '40px 24px',
+      minHeight: '100vh',
+      background: 'linear-gradient(rgba(11,23,39,0.90), rgba(11,23,39,0.95)), url(/fotos/hero-port.jpg)',
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '24px 16px' : '40px 24px',
       position: 'relative'
     }}>
-      <Fondo tokens={TEMA_OSCURO} />
       <motion.div
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         style={{ width: '100%', maxWidth: '420px', position: 'relative', zIndex: 1 }}
@@ -72,14 +58,27 @@ const LoginCliente = ({ onEntrar }) => {
         </a>
 
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <img src={logoWhite} alt="EVS Logistics" onClick={tocarLogo}
-            style={{ height: '52px', objectFit: 'contain', cursor: 'default', userSelect: 'none' }} />
+          <img src={logoWhite} alt="EVS Logistics" style={{ height: '52px', objectFit: 'contain' }} />
           <p style={{
             fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase',
             color: C.azulClaro, marginTop: '16px'
           }}>
             Portal de clientes
           </p>
+        </div>
+
+        <div style={{
+          display: 'flex', gap: '6px', background: C.campoFondo, border: `1px solid ${C.borde}`,
+          borderRadius: '12px', padding: '5px', marginBottom: '16px'
+        }}>
+          <button type="button" style={{
+            flex: 1, background: C.azul, color: '#fff', border: 'none', borderRadius: '8px',
+            padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+          }}>Clientes</button>
+          <button type="button" onClick={() => navigate('/admin')} style={{
+            flex: 1, background: 'transparent', color: C.suave, border: 'none', borderRadius: '8px',
+            padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+          }}>Personal</button>
         </div>
 
         <form onSubmit={enviar} style={{ ...panel, padding: isMobile ? '26px 22px' : '34px' }}>

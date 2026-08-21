@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaLock, FaExclamationCircle, FaArrowLeft } from 'react-icons/fa'
 import logoWhite from '../assets/logo-white.png'
@@ -6,6 +7,7 @@ import { iniciarSesion, guardarToken, MODO_DEMO } from '../lib/api'
 import { tarjeta, input, etiqueta, boton, deshabilitado, enfoque, COLORES } from './ui'
 
 const Login = ({ onEntrar }) => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -51,6 +53,20 @@ const Login = ({ onEntrar }) => {
           <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: COLORES.azulClaro, marginTop: '14px' }}>
             Panel de administrador
           </p>
+        </div>
+
+        <div style={{
+          display: 'flex', gap: '6px', background: COLORES.superficie, border: `1px solid ${COLORES.borde}`,
+          borderRadius: '12px', padding: '5px', marginBottom: '16px'
+        }}>
+          <button type="button" onClick={() => navigate('/portal')} style={{
+            flex: 1, background: 'transparent', color: COLORES.textoSuave, border: 'none', borderRadius: '8px',
+            padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+          }}>Clientes</button>
+          <button type="button" style={{
+            flex: 1, background: COLORES.azul, color: '#fff', border: 'none', borderRadius: '8px',
+            padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
+          }}>Personal</button>
         </div>
 
         <form onSubmit={enviar} style={{ ...tarjeta, padding: '32px' }}>
