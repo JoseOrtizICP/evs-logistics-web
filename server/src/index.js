@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import { migrar } from './migrar.js'
 import { pool } from './db.js'
 import rutasAuth from './rutas/auth.js'
@@ -17,6 +18,14 @@ const app = express()
 // verían siempre la misma IP.
 app.set('trust proxy', 1)
 app.disable('x-powered-by')
+
+// Cabeceras de seguridad (HSTS, X-Content-Type-Options, X-Frame-Options, etc.).
+// Es una API JSON consumida por el sitio desde otro origen, así que se apaga la
+// CSP (no sirve HTML) y se permite el uso cross-origin del recurso.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}))
 
 const origenesPermitidos = (
   process.env.CORS_ORIGINS ||
