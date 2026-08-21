@@ -27,7 +27,9 @@ let direcciones = [
 // Credenciales de la puerta de desarrollador SOLO para la demostración local.
 // En el servidor real la llave vive en variables de entorno de Railway, nunca
 // en el código, y este bloque no existe.
-const DEV_DEMO = { numero: 'EVS-DEV', password: 'evs-dev-2026' }
+// Credenciales SOLO para el modo demo local (nunca llegan a producción).
+// No usar valores parecidos a los reales; esto solo sirve en `npm run dev`.
+const DEV_DEMO = { numero: 'DEMO-DEV', password: 'demo-local' }
 let sesionDev = false
 
 const envios = [

@@ -8,10 +8,12 @@ import { tarjeta, input, boton, enfoque, deshabilitado, COLORES } from './ui'
 
 // Contraseña temporal generada al restablecer.
 const generarPassword = () => {
-  const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ', numeros = '23456789'
+  // RNG criptográfico (no Math.random) y más longitud, para contraseñas temporales.
+  const alfabeto = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+  const buf = new Uint32Array(10)
+  crypto.getRandomValues(buf)
   let c = ''
-  for (let i = 0; i < 4; i++) c += letras[Math.floor(Math.random() * letras.length)]
-  for (let i = 0; i < 4; i++) c += numeros[Math.floor(Math.random() * numeros.length)]
+  for (let i = 0; i < 10; i++) c += alfabeto[buf[i] % alfabeto.length]
   return c
 }
 

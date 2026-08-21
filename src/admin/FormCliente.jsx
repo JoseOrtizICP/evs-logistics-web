@@ -8,11 +8,12 @@ const VACIO = { numero: '', nombre: '', contacto: '', email: '', telefono: '', p
 
 // Genera una contraseña temporal legible para entregar al cliente.
 const generarPassword = () => {
-  const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ'
-  const numeros = '23456789'
+  // RNG criptográfico (no Math.random) y más longitud, para contraseñas temporales.
+  const alfabeto = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+  const buf = new Uint32Array(10)
+  crypto.getRandomValues(buf)
   let clave = ''
-  for (let i = 0; i < 4; i++) clave += letras[Math.floor(Math.random() * letras.length)]
-  for (let i = 0; i < 4; i++) clave += numeros[Math.floor(Math.random() * numeros.length)]
+  for (let i = 0; i < 10; i++) clave += alfabeto[buf[i] % alfabeto.length]
   return clave
 }
 
