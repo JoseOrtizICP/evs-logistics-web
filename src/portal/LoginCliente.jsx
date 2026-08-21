@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaArrowLeft, FaExclamationCircle, FaWhatsapp } from 'react-icons/fa'
 import logoWhite from '../assets/logo-white.png'
@@ -15,6 +16,21 @@ const { C, panel, campo, rotulo, btn, foco } = TEMA_OSCURO
 
 const LoginCliente = ({ onEntrar }) => {
   const isMobile = useIsMobile()
+  const navigate = useNavigate()
+  // Puerta discreta al panel de administración: 3 clics rápidos en el logo
+  // llevan a /admin. No hay nada visible; solo el equipo conoce el gesto.
+  const golpesLogo = useRef(0)
+  const golpeTimer = useRef(null)
+  const tocarLogo = () => {
+    golpesLogo.current += 1
+    clearTimeout(golpeTimer.current)
+    if (golpesLogo.current >= 3) {
+      golpesLogo.current = 0
+      navigate('/admin')
+      return
+    }
+    golpeTimer.current = setTimeout(() => { golpesLogo.current = 0 }, 1200)
+  }
   const [numero, setNumero] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -56,7 +72,8 @@ const LoginCliente = ({ onEntrar }) => {
         </a>
 
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <img src={logoWhite} alt="EVS Logistics" style={{ height: '52px', objectFit: 'contain' }} />
+          <img src={logoWhite} alt="EVS Logistics" onClick={tocarLogo}
+            style={{ height: '52px', objectFit: 'contain', cursor: 'default', userSelect: 'none' }} />
           <p style={{
             fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase',
             color: C.azulClaro, marginTop: '16px'
