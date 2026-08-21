@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { FaLock, FaExclamationCircle } from 'react-icons/fa'
+import { FaLock, FaExclamationCircle, FaArrowLeft } from 'react-icons/fa'
 import logoWhite from '../assets/logo-white.png'
 import { iniciarSesion, guardarToken, MODO_DEMO } from '../lib/api'
 import { tarjeta, input, etiqueta, boton, deshabilitado, enfoque, COLORES } from './ui'
@@ -30,17 +30,26 @@ const Login = ({ onEntrar }) => {
 
   return (
     <div style={{
-      minHeight: '100vh', background: COLORES.fondo,
+      minHeight: '100vh',
+      background: 'linear-gradient(rgba(11,23,39,0.90), rgba(11,23,39,0.95)), url(/fotos/hero-port.jpg)',
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
     }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
         style={{ width: '100%', maxWidth: '400px' }}
       >
+        <a href="/" style={{
+          display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none',
+          color: COLORES.textoTenue, fontSize: '13px', marginBottom: '24px'
+        }}>
+          <FaArrowLeft style={{ fontSize: '11px' }} /> Volver al sitio
+        </a>
+
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <img src={logoWhite} alt="EVS Logistics" style={{ height: '48px', objectFit: 'contain' }} />
           <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: COLORES.azulClaro, marginTop: '14px' }}>
-            Panel de rastreo
+            Panel de administrador
           </p>
         </div>
 
