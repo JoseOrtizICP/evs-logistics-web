@@ -78,10 +78,10 @@ const LoginCliente = ({ onEntrar }) => {
           <button type="button" onClick={() => navigate('/admin')} style={{
             flex: 1, background: 'transparent', color: C.suave, border: 'none', borderRadius: '8px',
             padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
-          }}>Personal</button>
+          }}>Administración</button>
         </div>
 
-        <form onSubmit={enviar} style={{ ...panel, padding: isMobile ? '26px 22px' : '34px' }}>
+        <form onSubmit={enviar} style={{ ...panel, background: 'rgba(255,255,255,0.05)', padding: isMobile ? '26px 22px' : '34px' }}>
           <h1 style={{ fontSize: '21px', fontWeight: 700, color: C.texto, marginBottom: '6px' }}>
             Bienvenido
           </h1>

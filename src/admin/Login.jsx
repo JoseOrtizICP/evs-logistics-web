@@ -66,7 +66,7 @@ const Login = ({ onEntrar }) => {
           <button type="button" style={{
             flex: 1, background: COLORES.azul, color: '#fff', border: 'none', borderRadius: '8px',
             padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
-          }}>Personal</button>
+          }}>Administración</button>
         </div>
 
         <form onSubmit={enviar} style={{ ...tarjeta, padding: '32px' }}>
