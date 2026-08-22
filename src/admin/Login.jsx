@@ -49,7 +49,7 @@ const Login = ({ onEntrar }) => {
         </a>
 
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <img src={logoWhite} alt="EVS Logistics" style={{ height: '48px', objectFit: 'contain' }} />
+          <img src={logoWhite} alt="EVS Logistics" style={{ height: '48px', objectFit: 'contain', filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.75))' }} />
           <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: COLORES.azulClaro, marginTop: '14px' }}>
             Panel de administrador
           </p>
@@ -66,7 +66,7 @@ const Login = ({ onEntrar }) => {
           <button type="button" style={{
             flex: 1, background: COLORES.azul, color: '#fff', border: 'none', borderRadius: '8px',
             padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
-          }}>Administración</button>
+          }}>Vendedores</button>
         </div>
 
         <form onSubmit={enviar} style={{ ...tarjeta, padding: '32px' }}>

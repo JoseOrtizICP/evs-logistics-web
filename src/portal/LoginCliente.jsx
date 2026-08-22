@@ -58,7 +58,7 @@ const LoginCliente = ({ onEntrar }) => {
         </a>
 
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <img src={logoWhite} alt="EVS Logistics" style={{ height: '52px', objectFit: 'contain' }} />
+          <img src={logoWhite} alt="EVS Logistics" style={{ height: '52px', objectFit: 'contain', filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.75))' }} />
           <p style={{
             fontSize: '12px', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase',
             color: C.azulClaro, marginTop: '16px'
@@ -78,7 +78,7 @@ const LoginCliente = ({ onEntrar }) => {
           <button type="button" onClick={() => navigate('/admin')} style={{
             flex: 1, background: 'transparent', color: C.suave, border: 'none', borderRadius: '8px',
             padding: '11px', fontSize: '13px', fontWeight: 600, cursor: 'pointer'
-          }}>Administración</button>
+          }}>Vendedores</button>
         </div>
 
         <form onSubmit={enviar} style={{ ...panel, background: 'rgba(255,255,255,0.05)', padding: isMobile ? '26px 22px' : '34px' }}>
